@@ -1,0 +1,18 @@
+duration: 0 days 1 hours 5 minutes 54 seconds
+all distance: 11808.7 m
+movement time: 0 days 1 hours 4 minutes 11 seconds
+stops time: 0 days 0 hours 1 minutes 43 seconds
+average speed: 11.3424 km/h
+max speed: 38.1607 km/h
+min height: 544.373 m
+max height: 605.333 m
+total_climb: 508.711 m
+total_descent: 495.3 m
+
+speed histogram:
+0-2 m/s : 15 minutes 18 seconds
+10-12 m/s : 0 minutes 1 seconds
+2-4 m/s : 33 minutes 56 seconds
+4-6 m/s : 11 minutes 8 seconds
+6-8 m/s : 3 minutes 35 seconds
+8-10 m/s : 0 minutes 13 seconds
