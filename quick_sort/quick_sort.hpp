@@ -1,6 +1,5 @@
-#ifndef QUICK_SORT_QUICK_SORT_HPP
-#define QUICK_SORT_QUICK_SORT_HPP
+#pragma once
 
 
-
-#endif //QUICK_SORT_QUICK_SORT_HPP
+template <class RandomAccessIterator, class Compare>
+void quick_sort (RandomAccessIterator first, RandomAccessIterator last, Compare comp);
