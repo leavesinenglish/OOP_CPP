@@ -1,14 +1,6 @@
 #pragma once
 #include <iostream>
 
-template<bool expression, class A>
-struct my_enable_if {};
-
-template<class A>
-struct my_enable_if<true, A> {
-    using type = A;
-};
-
 template<class RandomAccessIterator, class Compare>
 std::enable_if_t <std::is_same_v<typename std::iterator_traits <RandomAccessIterator>::iterator_category, std::random_access_iterator_tag>>
 quick_sort(RandomAccessIterator first, RandomAccessIterator last, Compare comp) {
