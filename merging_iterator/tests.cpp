@@ -14,9 +14,9 @@ TEST(Vector_container, int_) {
         std::vector<int> temp;
         int number_of_elements_in_container = rand() % MAX_SIZE;
         for (auto j = 0; j < number_of_elements_in_container; ++j) {
-            temp.push_back(rand() % 1000);
+            temp.emplace_back(rand() % 1000);
         }
-        container_of_int_vectors.push_back(temp);
+        container_of_int_vectors.emplace_back(temp);
         sort(container_of_int_vectors[i].begin(), container_of_int_vectors[i].end());
     }
     using it_pair = pair<vector<int>::iterator, vector<int>::iterator>;
@@ -40,9 +40,9 @@ TEST(Vector_container, double_) {
         std::vector<double> temp;
         int number_of_elements_in_container = rand() % MAX_SIZE;
         for (auto j = 0; j < number_of_elements_in_container; ++j) {
-            temp.push_back(rand() % 1000);
+            temp.emplace_back(rand() % 1000);
         }
-        container_of_double_vectors.push_back(temp);
+        container_of_double_vectors.emplace_back(temp);
         sort(container_of_double_vectors[i].begin(), container_of_double_vectors[i].end());
     }
     using it_pair = pair<vector<double>::iterator, vector<double>::iterator>;
@@ -66,9 +66,9 @@ TEST(Deque_container, int_) {
         deque<int> temp;
         int number_of_elements_in_container = rand() % MAX_SIZE;
         for (auto j = 0; j < number_of_elements_in_container; ++j) {
-            temp.push_back(rand() % 1000);
+            temp.emplace_back(rand() % 1000);
         }
-        container_of_int_deque.push_back(temp);
+        container_of_int_deque.emplace_back(temp);
         sort(container_of_int_deque[i].begin(), container_of_int_deque[i].end());
     }
     using it_pair = pair<deque<int>::iterator, deque<int>::iterator>;
@@ -92,9 +92,9 @@ TEST(Deque_container, double_) {
         deque<double> temp;
         int number_of_elements_in_container = rand() % MAX_SIZE;
         for (auto j = 0; j < number_of_elements_in_container; ++j) {
-            temp.push_back(rand() % 1000);
+            temp.emplace_back(rand() % 1000);
         }
-        container_of_double_deque.push_back(temp);
+        container_of_double_deque.emplace_back(temp);
         sort(container_of_double_deque[i].begin(), container_of_double_deque[i].end());
     }
     using it_pair = pair<deque<double>::iterator, deque<double>::iterator>;
@@ -118,9 +118,9 @@ TEST(List_container, int_) {
         list<int> temp;
         int number_of_elements_in_container = rand() % MAX_SIZE;
         for (auto j = 0; j < number_of_elements_in_container; ++j) {
-            temp.push_back(rand() % 1000);
+            temp.emplace_back(rand() % 1000);
         }
-        container_of_int_list.push_back(temp);
+        container_of_int_list.emplace_back(temp);
         container_of_int_list[i].sort();
     }
     using it_pair = pair<list<int>::iterator, list<int>::iterator>;
@@ -144,9 +144,9 @@ TEST(List_container, double_) {
         list<double> temp;
         int number_of_elements_in_container = rand() % MAX_SIZE;
         for (auto j = 0; j < number_of_elements_in_container; ++j) {
-            temp.push_back(rand() % 1000);
+            temp.emplace_back(rand() % 1000);
         }
-        container_of_int_list.push_back(temp);
+        container_of_int_list.emplace_back(temp);
         container_of_int_list[i].sort();
     }
     using it_pair = pair<list<double>::iterator, list<double>::iterator>;
@@ -181,9 +181,9 @@ TEST(Container, throw_) {
     for (auto i = 0; i < number_of_vectors; ++i) {
         vector<int> temp;
         for (auto j = 0; j < number_of_elements_in_container; ++j) {
-            temp.push_back(rand() % 1000);
+            temp.emplace_back(rand() % 1000);
         }
-        container_of_int_vectors.push_back(temp);
+        container_of_int_vectors.emplace_back(temp);
         sort(container_of_int_vectors[i].begin(), container_of_int_vectors[i].end());
     }
     using it_pair = pair<vector<int>::iterator, vector<int>::iterator>;
