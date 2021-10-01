@@ -3,194 +3,195 @@
 #include <list>
 #include  <random>
 #include "merging_iterator.hpp"
-
+using namespace std;
 #define MAX_SIZE 10
 
-TEST(Vector_container_test, int_test) {
-    std::mt19937 random(0);
-    std::vector<std::vector<int>> container_of_int_vectors;
-    int number_of_vectors = random() % MAX_SIZE;
+TEST(Vector_container, int_) {
+    vector<vector<int>> container_of_int_vectors;
+    srand(time(NULL));
+    int number_of_vectors = rand() % MAX_SIZE;
     for (auto i = 0; i < number_of_vectors; ++i) {
         std::vector<int> temp;
-        int number_of_elements_in_container = random() % MAX_SIZE;
+        int number_of_elements_in_container = rand() % MAX_SIZE;
         for (auto j = 0; j < number_of_elements_in_container; ++j) {
-            temp.push_back(random() % 1000);
+            temp.push_back(rand() % 1000);
         }
         container_of_int_vectors.push_back(temp);
-        std::sort(container_of_int_vectors[i].begin(), container_of_int_vectors[i].end());
+        sort(container_of_int_vectors[i].begin(), container_of_int_vectors[i].end());
     }
-    using it_pair = std::pair<std::vector<int>::iterator, std::vector<int>::iterator>;
-    std::vector<it_pair> iter_vec;
+    using it_pair = pair<vector<int>::iterator, vector<int>::iterator>;
+    vector<it_pair> iter_vec;
     for (auto i = 0; i < container_of_int_vectors.size(); ++i) {
         iter_vec.emplace_back(container_of_int_vectors[i].begin(), container_of_int_vectors[i].end());
     }
-    Merge_range<std::vector<int>::iterator> merge_iter(iter_vec);
-    for (auto tmp = merge_iter.begin(); tmp != merge_iter.end(); ++tmp) {
-        for (auto tmp2 = tmp; tmp2 != merge_iter.end(); ++tmp2) {
+    Merge_range<vector<int>::iterator> merge_range(iter_vec);
+    for (auto tmp = merge_range.begin(); tmp != merge_range.end(); ++tmp) {
+        for (auto tmp2 = tmp; tmp2 != merge_range.end(); ++tmp2) {
             EXPECT_TRUE(*tmp <= *tmp2);
         }
     }
 }
 
-TEST(Vector_container_test, double_test) {
-    std::mt19937 random(0);
-    std::vector<std::vector<double>> container_of_double_vectors;
-    int number_of_vectors = random() % MAX_SIZE;
+TEST(Vector_container, double_) {
+    vector<vector<double>> container_of_double_vectors;
+    srand(time(NULL));
+    int number_of_vectors = rand() % MAX_SIZE;
     for (auto i = 0; i < number_of_vectors; ++i) {
         std::vector<double> temp;
-        int number_of_elements_in_container = random() % MAX_SIZE;
+        int number_of_elements_in_container = rand() % MAX_SIZE;
         for (auto j = 0; j < number_of_elements_in_container; ++j) {
-            temp.push_back(static_cast<double>(random() % 1000));
+            temp.push_back(rand() % 1000);
         }
         container_of_double_vectors.push_back(temp);
-        std::sort(container_of_double_vectors[i].begin(), container_of_double_vectors[i].end());
+        sort(container_of_double_vectors[i].begin(), container_of_double_vectors[i].end());
     }
-    using it_pair = std::pair<std::vector<double>::iterator, std::vector<double>::iterator>;
-    std::vector<it_pair> iter_vec;
+    using it_pair = pair<vector<double>::iterator, vector<double>::iterator>;
+    vector<it_pair> iter_vec;
     for (auto i = 0; i < container_of_double_vectors.size(); ++i) {
         iter_vec.emplace_back(container_of_double_vectors[i].begin(), container_of_double_vectors[i].end());
     }
-    Merge_range<std::vector<double>::iterator> merge_iter(iter_vec);
-    for (auto tmp = merge_iter.begin(); tmp != merge_iter.end(); ++tmp) {
-        for (auto tmp2 = tmp; tmp2 != merge_iter.end(); ++tmp2) {
+    Merge_range<vector<double>::iterator> merge_range(iter_vec);
+    for (auto tmp = merge_range.begin(); tmp != merge_range.end(); ++tmp) {
+        for (auto tmp2 = tmp; tmp2 != merge_range.end(); ++tmp2) {
             EXPECT_TRUE(*tmp <= *tmp2);
         }
     }
 }
 
-TEST(Deque_container_test, int_test) {
-    std::mt19937 random(0);
-    std::vector<std::deque<int>> container_of_double_deque;
-    int number_of_vectors = random() % MAX_SIZE;
+TEST(Deque_container, int_) {
+    srand(time(NULL));
+    vector<deque<int>> container_of_int_deque;
+    int number_of_vectors = rand() % MAX_SIZE;
     for (auto i = 0; i < number_of_vectors; ++i) {
-        std::deque<int> temp;
-        int number_of_elements_in_container = random() % MAX_SIZE;
+        deque<int> temp;
+        int number_of_elements_in_container = rand() % MAX_SIZE;
         for (auto j = 0; j < number_of_elements_in_container; ++j) {
-            temp.push_back(static_cast<int>(random() % 1000));
+            temp.push_back(rand() % 1000);
+        }
+        container_of_int_deque.push_back(temp);
+        sort(container_of_int_deque[i].begin(), container_of_int_deque[i].end());
+    }
+    using it_pair = pair<deque<int>::iterator, deque<int>::iterator>;
+    vector<it_pair> iter_vec;
+    for (auto i = 0; i < container_of_int_deque.size(); ++i) {
+        iter_vec.emplace_back(container_of_int_deque[i].begin(), container_of_int_deque[i].end());
+    }
+    Merge_range<deque<int>::iterator> merge_range(iter_vec);
+    for (auto tmp = merge_range.begin(); tmp != merge_range.end(); ++tmp) {
+        for (auto tmp2 = tmp; tmp2 != merge_range.end(); ++tmp2) {
+            EXPECT_TRUE(*tmp <= *tmp2);
+        }
+    }
+}
+
+TEST(Deque_container, double_) {
+    srand(time(NULL));
+    vector<deque<double>> container_of_double_deque;
+    int number_of_vectors = rand() % MAX_SIZE;
+    for (auto i = 0; i < number_of_vectors; ++i) {
+        deque<double> temp;
+        int number_of_elements_in_container = rand() % MAX_SIZE;
+        for (auto j = 0; j < number_of_elements_in_container; ++j) {
+            temp.push_back(rand() % 1000);
         }
         container_of_double_deque.push_back(temp);
-        std::sort(container_of_double_deque[i].begin(), container_of_double_deque[i].end());
-    }using it_pair = std::pair<std::deque<int>::iterator, std::deque<int>::iterator>;
-    std::vector<it_pair> iter_vec;
+        sort(container_of_double_deque[i].begin(), container_of_double_deque[i].end());
+    }
+    using it_pair = pair<deque<double>::iterator, deque<double>::iterator>;
+    vector<it_pair> iter_vec;
     for (auto i = 0; i < container_of_double_deque.size(); ++i) {
         iter_vec.emplace_back(container_of_double_deque[i].begin(), container_of_double_deque[i].end());
     }
-    Merge_range<std::deque<int>::iterator> merge_iter(iter_vec);
-    for (auto tmp = merge_iter.begin(); tmp != merge_iter.end(); ++tmp) {
-        for (auto tmp2 = tmp; tmp2 != merge_iter.end(); ++tmp2) {
+    Merge_range<deque<double>::iterator> merge_range(iter_vec);
+    for (auto tmp = merge_range.begin(); tmp != merge_range.end(); ++tmp) {
+        for (auto tmp2 = tmp; tmp2 != merge_range.end(); ++tmp2) {
             EXPECT_TRUE(*tmp <= *tmp2);
         }
     }
 }
 
-TEST(Deque_container_test, double_test) {
-    std::mt19937 random(0);
-    std::vector<std::deque<double>> container_of_double_deque;
-    int number_of_vectors = random() % MAX_SIZE;
+TEST(List_container, int_) {
+    srand(time(NULL));
+    vector<list<int>> container_of_int_list;
+    int number_of_vectors = rand() % MAX_SIZE;
     for (auto i = 0; i < number_of_vectors; ++i) {
-        std::deque<double> temp;
-        int number_of_elements_in_container = random() % MAX_SIZE;
+        list<int> temp;
+        int number_of_elements_in_container = rand() % MAX_SIZE;
         for (auto j = 0; j < number_of_elements_in_container; ++j) {
-            temp.push_back(static_cast<double>(random() % 1000));
-        }
-        container_of_double_deque.push_back(temp);
-        std::sort(container_of_double_deque[i].begin(), container_of_double_deque[i].end());
-    }
-    using it_pair = std::pair<std::deque<double>::iterator, std::deque<double>::iterator>;
-    std::vector<it_pair> iter_vec;
-    for (auto i = 0; i < container_of_double_deque.size(); ++i) {
-        iter_vec.emplace_back(container_of_double_deque[i].begin(), container_of_double_deque[i].end());
-    }
-    Merge_range<std::deque<double>::iterator> merge_iter(iter_vec);
-    for (auto tmp = merge_iter.begin(); tmp != merge_iter.end(); ++tmp) {
-        for (auto tmp2 = tmp; tmp2 != merge_iter.end(); ++tmp2) {
-            EXPECT_TRUE(*tmp <= *tmp2);
-        }
-    }
-}
-
-TEST(List_container_test, double_test) {
-    std::mt19937 random(0);
-    std::vector<std::list<double>> container_of_double_list;
-    int number_of_vectors = random() % MAX_SIZE;
-    for (auto i = 0; i < number_of_vectors; ++i) {
-        std::list<double> temp;
-        int number_of_elements_in_container = random() % MAX_SIZE;
-        for (auto j = 0; j < number_of_elements_in_container; ++j) {
-            temp.push_back(static_cast<double>(random() % 1000));
-        }
-        container_of_double_list.push_back(temp);
-        container_of_double_list[i].sort();
-    }
-    using it_pair = std::pair<std::list<double>::iterator, std::list<double>::iterator>;
-    std::vector<it_pair> iter_vec;
-    for (auto i = 0; i < container_of_double_list.size(); ++i) {
-        iter_vec.emplace_back(container_of_double_list[i].begin(), container_of_double_list[i].end());
-    }
-    Merge_range<std::list<double>::iterator> merge_iter(iter_vec);
-    for (auto tmp = merge_iter.begin(); tmp != merge_iter.end(); ++tmp) {
-        for (auto tmp2 = tmp; tmp2 != merge_iter.end(); ++tmp2) {
-            EXPECT_TRUE(*tmp <= *tmp2);
-        }
-    }
-}
-
-TEST(List_container_test, int_test) {
-    std::mt19937 random(0);
-    std::vector<std::list<int>> container_of_int_list;
-    int number_of_vectors = random() % MAX_SIZE;
-    int number_of_elements_in_container = random() % MAX_SIZE;
-    for (auto i = 0; i < number_of_vectors; ++i) {
-        std::list<int> temp;
-        for (auto j = 0; j < number_of_elements_in_container; ++j) {
-            temp.push_back(static_cast<int>(random() % 1000));
+            temp.push_back(rand() % 1000);
         }
         container_of_int_list.push_back(temp);
         container_of_int_list[i].sort();
     }
-    using it_pair = std::pair<std::list<int>::iterator, std::list<int>::iterator>;
-    std::vector<it_pair> iter_vec;
+    using it_pair = pair<list<int>::iterator, list<int>::iterator>;
+    vector<it_pair> iter_vec;
     for (auto i = 0; i < container_of_int_list.size(); ++i) {
         iter_vec.emplace_back(container_of_int_list[i].begin(), container_of_int_list[i].end());
     }
-    Merge_range<std::list<int>::iterator> merge_iter(iter_vec);
-    for (auto tmp = merge_iter.begin(); tmp != merge_iter.end(); ++tmp) {
-        for (auto tmp2 = tmp; tmp2 != merge_iter.end(); ++tmp2) {
+    Merge_range<list<int>::iterator> merge_range(iter_vec);
+    for (auto tmp = merge_range.begin(); tmp != merge_range.end(); ++tmp) {
+        for (auto tmp2 = tmp; tmp2 != merge_range.end(); ++tmp2) {
             EXPECT_TRUE(*tmp <= *tmp2);
         }
     }
 }
 
-TEST(Special_test, empty_container) {
+TEST(List_container, double_) {
+    srand(time(NULL));
+    vector<list<double>> container_of_int_list;
+    int number_of_vectors = rand() % MAX_SIZE;
+    for (auto i = 0; i < number_of_vectors; ++i) {
+        list<double> temp;
+        int number_of_elements_in_container = rand() % MAX_SIZE;
+        for (auto j = 0; j < number_of_elements_in_container; ++j) {
+            temp.push_back(rand() % 1000);
+        }
+        container_of_int_list.push_back(temp);
+        container_of_int_list[i].sort();
+    }
+    using it_pair = pair<list<double>::iterator, list<double>::iterator>;
+    vector<it_pair> iter_vec;
+    for (auto i = 0; i < container_of_int_list.size(); ++i) {
+        iter_vec.emplace_back(container_of_int_list[i].begin(), container_of_int_list[i].end());
+    }
+    Merge_range<list<double>::iterator> merge_range(iter_vec);
+    for (auto tmp = merge_range.begin(); tmp != merge_range.end(); ++tmp) {
+        for (auto tmp2 = tmp; tmp2 != merge_range.end(); ++tmp2) {
+            EXPECT_TRUE(*tmp <= *tmp2);
+        }
+    }
+}
+
+TEST(Int_list, empty) {
     using it_pair = std::pair<std::list<int>::iterator, std::list<int>::iterator>;
     std::vector<it_pair> iter_vec;
-    Merge_range<std::list<int>::iterator> merge_iter(iter_vec);
-    auto tmp = merge_iter.begin();
-    EXPECT_TRUE(tmp == merge_iter.end());
+    Merge_range<std::list<int>::iterator> merge_range(iter_vec);
+    auto tmp = merge_range.begin();
+    EXPECT_TRUE(tmp == merge_range.end());
     EXPECT_THROW(++tmp, OutOfRangeException);
-    EXPECT_TRUE(tmp == merge_iter.end());
+    EXPECT_TRUE(tmp == merge_range.end());
     EXPECT_THROW(*tmp, OutOfRangeException);
 }
 
-TEST(Special_test, throw_test) {
-    std::mt19937 random(0);
-    std::vector<std::vector<int>> container_of_int_vectors;
-    int number_of_vectors = random() % MAX_SIZE;
-    int number_of_elements_in_container = random() % MAX_SIZE;
+TEST(Container, throw_) {
+    srand(time(NULL));
+    vector<vector<int>> container_of_int_vectors;
+    int number_of_vectors = rand() % MAX_SIZE;
+    int number_of_elements_in_container = rand() % MAX_SIZE;
     for (auto i = 0; i < number_of_vectors; ++i) {
-        std::vector<int> temp;
+        vector<int> temp;
         for (auto j = 0; j < number_of_elements_in_container; ++j) {
-            temp.push_back(random() % 1000);
+            temp.push_back(rand() % 1000);
         }
         container_of_int_vectors.push_back(temp);
-        std::sort(container_of_int_vectors[i].begin(), container_of_int_vectors[i].end());
+        sort(container_of_int_vectors[i].begin(), container_of_int_vectors[i].end());
     }
-    using it_pair = std::pair<std::vector<int>::iterator, std::vector<int>::iterator>;
-    std::vector<it_pair> iter_vec;
+    using it_pair = pair<vector<int>::iterator, vector<int>::iterator>;
+    vector<it_pair> iter_vec;
     for (auto i = 0; i < container_of_int_vectors.size(); ++i) {
         iter_vec.emplace_back(container_of_int_vectors[i].begin(), container_of_int_vectors[i].end());
     }
-    Merge_range<std::vector<int>::iterator> merge_iter(iter_vec);
+    Merge_range<vector<int>::iterator> merge_iter(iter_vec);
     for (auto tmp = merge_iter.begin(); tmp != merge_iter.end(); ++tmp) {
         EXPECT_NO_THROW(*tmp);
         for (auto tmp2 = tmp; tmp2 != merge_iter.end(); ++tmp2) {
