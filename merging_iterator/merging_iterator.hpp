@@ -1,7 +1,6 @@
 #pragma once
 #include <vector>
 #include <iterator>
-#include <algorithm>
 #include "m_iter_exceptions.hpp"
 
 template<typename T, typename = void>
@@ -38,11 +37,11 @@ class Merge_range<Iterator_type> final{
             return *parent.iterators[position];
         }
 
-        friend bool operator==(Merge_iterator const& left, Merge_iterator const& right){
-            return  left.position == right.position;
+        bool operator==(Merge_iterator const& right){
+            return  this->position == right.position;
         }
-        friend bool operator!=(Merge_iterator const& left, Merge_iterator const& right){
-            return left.position != right.position;
+        bool operator!=(Merge_iterator const& right){
+            return this->position != right.position;
         }
 
     private:
@@ -68,10 +67,10 @@ class Merge_range<Iterator_type> final{
     };
 
 public:
-    explicit Merge_range(const std::vector<std::pair<Iterator_type, Iterator_type>>& vector_of_pairs_of_iterators){
-        for (int i = 0; i < vector_of_pairs_of_iterators.size(); ++i){
-            iterators.push_back(vector_of_pairs_of_iterators[i].first);
-            iterators.push_back(vector_of_pairs_of_iterators[i].second);
+    explicit Merge_range(const std::vector<std::pair<Iterator_type, Iterator_type>>& vector_of_iterators_pairs){
+        for (int i = 0; i < vector_of_iterators_pairs.size(); ++i){
+            iterators.push_back(vector_of_iterators_pairs[i].first);
+            iterators.push_back(vector_of_iterators_pairs[i].second);
         }
     }
 
@@ -80,7 +79,7 @@ public:
     }
 
     Merge_iterator end(){
-        std::vector<std::pair<Iterator_type, Iterator_type>> end = { /*iterators[1] */ };
+        std::vector<std::pair<Iterator_type, Iterator_type>> end = {};
         static Merge_range end_range(end);
         auto iter = Merge_iterator(end_range);
         return iter;
