@@ -23,7 +23,7 @@ int main() {
             prev_numb = *tmp;
         }
     }
-    catch (OutOfRangeException &exception) {
+    catch (Merge_iterator_exception &exception) {
         exception.Message();
     }
 }

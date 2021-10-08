@@ -8,10 +8,11 @@ using namespace std;
 
 TEST(Vector_container, int_) {
     vector<vector<int>> container_of_int_vectors;
-    srand(time(NULL));
+    srand(time(nullptr));
     int number_of_vectors = rand() % MAX_SIZE;
     for (auto i = 0; i < number_of_vectors; ++i) {
-        std::vector<int> temp;
+        const std::vector<int> temp;
+        *temp.begin() = 5;
         int number_of_elements_in_container = rand() % MAX_SIZE;
         for (auto j = 0; j < number_of_elements_in_container; ++j) {
             temp.emplace_back(rand() % 1000);
@@ -25,16 +26,31 @@ TEST(Vector_container, int_) {
         iter_vec.emplace_back(container_of_int_vectors[i].begin(), container_of_int_vectors[i].end());
     }
     Merge_range<vector<int>::iterator> merge_range(iter_vec);
-    for (auto tmp = merge_range.begin(); tmp != merge_range.end(); ++tmp) {
-        for (auto tmp2 = tmp; tmp2 != merge_range.end(); ++tmp2) {
+    auto begin = merge_range.begin();
+    auto end = merge_range.end();
+    for (auto tmp = begin; tmp != end; ++tmp) {
+        for (auto tmp2 = tmp; tmp2 != end; ++tmp2) {
             EXPECT_TRUE(*tmp <= *tmp2);
         }
     }
 }
 
+TEST(Vector_container, int_not_rand){
+//    vector<vector<int>> container_of_int_vectors = {{1, 2, 7}, {3, 5, 8}, {6, 10, 12}};
+//    initializer_list<vector<int>::iterator> list = {container_of_int_vectors[0].begin(), container_of_int_vectors[0].end(),
+//                                  container_of_int_vectors[1].begin(), container_of_int_vectors[1].end(),
+//                                  container_of_int_vectors[2].begin(), container_of_int_vectors[2].end()};
+//    Merge_range<vector<int>::iterator> mergeRange(list);
+//    for (auto tmp = mergeRange.begin(); tmp != mergeRange.end(); ++tmp) {
+//        for (auto tmp2 = tmp; tmp2 != end; ++tmp2) {
+//            EXPECT_TRUE(*tmp <= *tmp2);
+//        }
+//    }
+}
+
 TEST(Vector_container, double_) {
     vector<vector<double>> container_of_double_vectors;
-    srand(time(NULL));
+    srand(time(nullptr));
     int number_of_vectors = rand() % MAX_SIZE;
     for (auto i = 0; i < number_of_vectors; ++i) {
         std::vector<double> temp;
@@ -59,7 +75,7 @@ TEST(Vector_container, double_) {
 }
 
 TEST(Deque_container, int_) {
-    srand(time(NULL));
+    srand(time(nullptr));
     vector<deque<int>> container_of_int_deque;
     int number_of_vectors = rand() % MAX_SIZE;
     for (auto i = 0; i < number_of_vectors; ++i) {
@@ -85,7 +101,7 @@ TEST(Deque_container, int_) {
 }
 
 TEST(Deque_container, double_) {
-    srand(time(NULL));
+    srand(time(nullptr));
     vector<deque<double>> container_of_double_deque;
     int number_of_vectors = rand() % MAX_SIZE;
     for (auto i = 0; i < number_of_vectors; ++i) {
@@ -111,7 +127,7 @@ TEST(Deque_container, double_) {
 }
 
 TEST(List_container, int_) {
-    srand(time(NULL));
+    srand(time(nullptr));
     vector<list<int>> container_of_int_list;
     int number_of_vectors = rand() % MAX_SIZE;
     for (auto i = 0; i < number_of_vectors; ++i) {
@@ -137,7 +153,7 @@ TEST(List_container, int_) {
 }
 
 TEST(List_container, double_) {
-    srand(time(NULL));
+    srand(time(nullptr));
     vector<list<double>> container_of_int_list;
     int number_of_vectors = rand() % MAX_SIZE;
     for (auto i = 0; i < number_of_vectors; ++i) {
@@ -168,13 +184,13 @@ TEST(Int_list, empty) {
     Merge_range<std::list<int>::iterator> merge_range(iter_vec);
     auto tmp = merge_range.begin();
     EXPECT_TRUE(tmp == merge_range.end());
-    EXPECT_THROW(++tmp, OutOfRangeException);
+    EXPECT_THROW(++tmp, Out_of_range_exception);
     EXPECT_TRUE(tmp == merge_range.end());
-    EXPECT_THROW(*tmp, OutOfRangeException);
+    EXPECT_THROW(*tmp, Out_of_range_exception);
 }
 
 TEST(Container, throw_) {
-    srand(time(NULL));
+    srand(time(nullptr));
     vector<vector<int>> container_of_int_vectors;
     int number_of_vectors = rand() % MAX_SIZE;
     int number_of_elements_in_container = rand() % MAX_SIZE;
