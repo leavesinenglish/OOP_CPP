@@ -1,5 +1,4 @@
 #pragma once
-
 #include <vector>
 #include <iterator>
 #include <initializer_list>
@@ -89,9 +88,8 @@ class Merge_range<Iterator_type> final {
     };
 
 public:
-    explicit Merge_range(std::vector<std::pair<Iterator_type, Iterator_type>> vector_of_iterators_pairs) {
-        iterators(std::move(vector_iterators_pairs));
-    }
+    explicit Merge_range(std::vector<std::pair<Iterator_type, Iterator_type>>& vector_of_iterators_pairs) :
+                        iterators(std::move(vector_of_iterators_pairs)){}
 
 //    Merge_range(const std::initializer_list<Iterator_type> iterators_list) {
 //        iterators = iterators_list;
@@ -109,5 +107,5 @@ public:
     }
 
 private:
-    std::vector<Iterator_type> iterators;
+    std::vector<std::pair<Iterator_type, Iterator_type>> iterators;
 };
