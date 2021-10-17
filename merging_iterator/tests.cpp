@@ -11,8 +11,7 @@ TEST(Vector_container, int_) {
     srand(time(nullptr));
     int number_of_vectors = rand() % MAX_SIZE;
     for (auto i = 0; i < number_of_vectors; ++i) {
-        const std::vector<int> temp;
-        *temp.begin() = 5;
+        std::vector<int> temp;
         int number_of_elements_in_container = rand() % MAX_SIZE;
         for (auto j = 0; j < number_of_elements_in_container; ++j) {
             temp.emplace_back(rand() % 1000);
@@ -23,29 +22,19 @@ TEST(Vector_container, int_) {
     using it_pair = pair<vector<int>::iterator, vector<int>::iterator>;
     vector<it_pair> iter_vec;
     for (auto i = 0; i < container_of_int_vectors.size(); ++i) {
-        iter_vec.emplace_back(container_of_int_vectors[i].begin(), container_of_int_vectors[i].end());
+        iter_vec.emplace_back(make_pair(container_of_int_vectors[i].begin(), container_of_int_vectors[i].end()));
     }
     Merge_range<vector<int>::iterator> merge_range(iter_vec);
+    vector<it_pair> a = {(1,1)};
+    Merge_range<vector<it_pair>> mergeRange(vector<it_pair> a);
     auto begin = merge_range.begin();
     auto end = merge_range.end();
-    for (auto tmp = begin; tmp != end; ++tmp) {
-        for (auto tmp2 = tmp; tmp2 != end; ++tmp2) {
+    for (auto tmp = begin; tmp != end; tmp++) {
+        for (auto tmp2 = tmp; tmp2 != end; tmp2++) {
+            auto a = *tmp;
             EXPECT_TRUE(*tmp <= *tmp2);
         }
     }
-}
-
-TEST(Vector_container, int_not_rand){
-//    vector<vector<int>> container_of_int_vectors = {{1, 2, 7}, {3, 5, 8}, {6, 10, 12}};
-//    initializer_list<vector<int>::iterator> list = {container_of_int_vectors[0].begin(), container_of_int_vectors[0].end(),
-//                                  container_of_int_vectors[1].begin(), container_of_int_vectors[1].end(),
-//                                  container_of_int_vectors[2].begin(), container_of_int_vectors[2].end()};
-//    Merge_range<vector<int>::iterator> mergeRange(list);
-//    for (auto tmp = mergeRange.begin(); tmp != mergeRange.end(); ++tmp) {
-//        for (auto tmp2 = tmp; tmp2 != end; ++tmp2) {
-//            EXPECT_TRUE(*tmp <= *tmp2);
-//        }
-//    }
 }
 
 TEST(Vector_container, double_) {

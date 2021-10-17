@@ -7,6 +7,7 @@ int main() {
     std::vector<int> first_container = {1, 2, 7};
     std::vector<int> second_container = {3, 5, 8};
     std::vector<int> third_container = {6, 10, 12};
+
     using it_pair = std::pair<std::vector<int>::iterator, std::vector<int>::iterator>;
     std::vector<it_pair> vector_of_iterators;
     vector_of_iterators.emplace_back(first_container.begin(), first_container.end());
@@ -23,7 +24,7 @@ int main() {
             prev_numb = *tmp;
         }
     }
-    catch (Merge_iterator_exception &exception) {
-        exception.Message();
+    catch (Out_of_range_exception &exception) {
+        exception.print_error();
     }
 }

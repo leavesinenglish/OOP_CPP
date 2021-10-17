@@ -10,6 +10,7 @@ class Merge_range;
 template<typename Iterator_type>
 class Merge_range<Iterator_type> final {
 
+    template<typename iterator_type>
     class Merge_iterator final {
 
     public:
@@ -24,24 +25,33 @@ class Merge_range<Iterator_type> final {
                 position = find_pos_of_min();
         }
 
-        Merge_iterator() = delete;
+        Merge_iterator() = default;
 
         Merge_iterator &operator++() {
-            if (position == NULL) {
+            if (position == stop) {
                 throw Out_of_range_exception();
             }
-            ++parent.iterators[position];
+            ++parent.iterators[position].first;
             position = find_pos_of_min();
             return *this;
         }
 
         reference operator*() {
-            if (position == NULL) {
+            if (position == stop) {
                 throw Out_of_range_exception();
             }
-            return *parent.iterators[position];
+            return *parent.iterators[position].first;
         }
 
+        Merge_iterator operator++(int)
+        {
+            if (position == stop) {
+                throw Out_of_range_exception();
+            }
+            Merge_iterator temp = *this;
+            ++* this;
+            return temp;
+        }
         bool operator==(Merge_iterator const &right) {
             return this->position == right.position;
         }
@@ -51,61 +61,47 @@ class Merge_range<Iterator_type> final {
         }
 
     private:
+        size_t stop = ~(std::numeric_limits<size_t>::max()) - 1;
         Merge_range parent;
-        int position = NULL;
+        size_t position = stop;
 
         int find_pos_of_min() {
-            if (parent.iterators.size() <= 1)
-                return NULL;
-            int min_idx = 0;
-            int amount_of_empty_ranges = 0;
-            for (int i = 0; i < parent.iterators.size(); i += 2) {
-                if (parent.iterators[i] != parent.iterators[i + 1]) {
-                    amount_of_empty_ranges++;
-                    if (*parent.iterators[i] < *parent.iterators[min_idx])
+            if (parent.iterators.size() < 1)
+                return stop;
+            size_t min_idx = 0;
+            int amount_of_not_empty_ranges = 0;
+            for (int i = 0; i < parent.iterators.size(); i++) {
+                if (parent.iterators[i].first != parent.iterators[i].second) {
+                    amount_of_not_empty_ranges++;
+                    if (*parent.iterators[i].first < *parent.iterators[min_idx].first)
                         min_idx = i;
                 }
             }
-            if (amount_of_empty_ranges)
+            if (amount_of_not_empty_ranges)
                 return min_idx;
-
-//            int n = 0;
-//            std::vector<int> a;
-//            a.assign(parent.iterators.size() / 2, 0);
-//            for (int i = 0; i != parent.iterators.size(); i += 2) {
-//                if (parent.iterators[i] != parent.iterators[i + 1]) {
-//                    a[n++] = i;
-//                }
-//            }
-//            if (n) {
-//                auto it = std::min_element(a.begin(), a.begin() + n, [this](int i, int j){
-//                    return *parent.iterators[i] < *parent.iterators[j];
-//                });
-//                return *it;
-//            }
-//            else return -1;
+            else return stop;
         }
     };
 
 public:
-    explicit Merge_range(std::vector<std::pair<Iterator_type, Iterator_type>>& vector_of_iterators_pairs) :
-                        iterators(std::move(vector_of_iterators_pairs)){}
+    explicit Merge_range(std::vector<std::pair<Iterator_type, Iterator_type>> vector_of_iterators_pairs) :
+                        iterators(std::move(vector_of_iterators_pairs)){};
 
-//    Merge_range(const std::initializer_list<Iterator_type> iterators_list) {
-//        iterators = iterators_list;
-//    }
-
-    Merge_iterator begin() {
-        return Merge_iterator(*this);
+    Merge_iterator<Iterator_type> begin() {
+        return Merge_iterator<Iterator_type>(*this);
     }
 
-    Merge_iterator end() {
-        std::vector<std::pair<Iterator_type, Iterator_type>> end = {};
-        Merge_range end_range(end);
-        auto iter = Merge_iterator(end_range);
-        return iter;
+    Merge_iterator<Iterator_type> end() {
+        return {};
     }
 
+    Merge_iterator<const Iterator_type> cbegin() const{
+        return Merge_iterator<const Iterator_type>(*this);
+    }
+
+    Merge_iterator<const Iterator_type> cend() const{
+        return {};
+    }
 private:
     std::vector<std::pair<Iterator_type, Iterator_type>> iterators;
 };
