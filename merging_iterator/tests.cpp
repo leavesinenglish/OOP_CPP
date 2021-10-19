@@ -24,11 +24,12 @@ TEST(Vector_container, int_) {
     for (auto i = 0; i < container_of_int_vectors.size(); ++i) {
         iter_vec.emplace_back(make_pair(container_of_int_vectors[i].begin(), container_of_int_vectors[i].end()));
     }
-    Merge_range<vector<int>::iterator> merge_range(iter_vec);
-    vector<it_pair> a = {(1,1)};
-    Merge_range<vector<it_pair>> mergeRange(vector<it_pair> a);
-    auto begin = merge_range.begin();
-    auto end = merge_range.end();
+    const Merge_range<vector<int>::iterator> merge_range(iter_vec);
+//    auto a = vector<int> {1};
+//    Merge_range<vector<it_pair>> mergeRange({a.begin(), a.end()});
+
+    auto begin = merge_range.cbegin();
+    auto end = merge_range.cend();
     for (auto tmp = begin; tmp != end; tmp++) {
         for (auto tmp2 = tmp; tmp2 != end; tmp2++) {
             auto a = *tmp;

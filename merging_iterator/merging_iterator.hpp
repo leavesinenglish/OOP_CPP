@@ -62,10 +62,10 @@ class Merge_range<Iterator_type> final {
 
     private:
         size_t stop = ~(std::numeric_limits<size_t>::max()) - 1;
-        Merge_range parent;
+        Merge_range parent = {};
         size_t position = stop;
 
-        int find_pos_of_min() {
+        size_t find_pos_of_min() {
             if (parent.iterators.size() < 1)
                 return stop;
             size_t min_idx = 0;
@@ -84,6 +84,9 @@ class Merge_range<Iterator_type> final {
     };
 
 public:
+
+    Merge_range() = default;
+
     explicit Merge_range(std::vector<std::pair<Iterator_type, Iterator_type>> vector_of_iterators_pairs) :
                         iterators(std::move(vector_of_iterators_pairs)){};
 
