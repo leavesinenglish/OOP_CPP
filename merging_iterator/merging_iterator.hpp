@@ -17,7 +17,8 @@ class Merge_range<Iterator_type> final {
         using value_type = typename std::iterator_traits<Iterator_type>::value_type;
         using iterator_category = std::forward_iterator_tag;
         using difference_type = typename std::iterator_traits<Iterator_type>::difference_type;
-        using reference = typename std::iterator_traits<Iterator_type>::reference;
+        using reference = value_type&;
+        using const_reference = const value_type&;
         using pointer = typename std::iterator_traits<Iterator_type>::pointer;
 
         explicit Merge_iterator(Merge_range new_parent) : parent(new_parent) {
@@ -36,13 +37,21 @@ class Merge_range<Iterator_type> final {
             return *this;
         }
 
-        reference operator*() {
+        template<class = std::enable_if_t<!std::is_same_v<iterator_type, const iterator_type>>>
+        reference operator*() const{
             if (position == stop) {
                 throw Out_of_range_exception();
             }
             return *parent.iterators[position].first;
         }
 
+        template<class = std::enable_if_t<std::is_same_v<iterator_type, const iterator_type>>>
+        const_reference operator*() const{
+            if (position == stop) {
+                throw Out_of_range_exception();
+            }
+            return *parent.iterators[position].first;
+        }
         Merge_iterator operator++(int)
         {
             if (position == stop) {
@@ -84,25 +93,27 @@ class Merge_range<Iterator_type> final {
     };
 
 public:
+    using const_iterator = Merge_iterator<const Iterator_type>;
+    using iterator = Merge_iterator<Iterator_type>;
 
     Merge_range() = default;
 
     explicit Merge_range(std::vector<std::pair<Iterator_type, Iterator_type>> vector_of_iterators_pairs) :
                         iterators(std::move(vector_of_iterators_pairs)){};
 
-    Merge_iterator<Iterator_type> begin() {
+    iterator begin() {
         return Merge_iterator<Iterator_type>(*this);
     }
 
-    Merge_iterator<Iterator_type> end() {
+    iterator end() {
         return {};
     }
 
-    Merge_iterator<const Iterator_type> cbegin() const{
+    const_iterator cbegin() const{
         return Merge_iterator<const Iterator_type>(*this);
     }
 
-    Merge_iterator<const Iterator_type> cend() const{
+    const_iterator cend() const{
         return {};
     }
 private:

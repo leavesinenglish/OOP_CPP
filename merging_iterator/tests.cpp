@@ -25,8 +25,8 @@ TEST(Vector_container, int_) {
         iter_vec.emplace_back(make_pair(container_of_int_vectors[i].begin(), container_of_int_vectors[i].end()));
     }
     const Merge_range<vector<int>::iterator> merge_range(iter_vec);
-//    auto a = vector<int> {1};
-//    Merge_range<vector<it_pair>> mergeRange({a.begin(), a.end()});
+
+//    Merge_range<vector<it_pair>> mergeRange({(vector<int> {1}).begin(), (vector<int> {1}).end()});
 
     auto begin = merge_range.cbegin();
     auto end = merge_range.cend();
@@ -205,4 +205,23 @@ TEST(Container, throw_) {
             EXPECT_NO_THROW(*tmp2);
         }
     }
+}
+
+TEST (Iterators, begin_end_cbegin_cend) {
+//    vector<int> a,b,c;
+//    a = {1,2,3};
+//    b = {4,5,6};
+//    c = {7,8,9};
+//    using it_pair = pair<vector<int>::iterator, vector<int>::iterator>;
+//    vector<it_pair> iter_vec = {{a.begin(), a.end()}, {b.begin(), b.end()}, {c.begin(), c.end()}};
+//    Merge_range<vector<int>::iterator> m_r(iter_vec);
+//    const Merge_range<vector<int>::iterator> cm_r(iter_vec);
+//    auto begin = m_r.begin();
+//    auto cbegin = m_r.cbegin();
+//    (*cbegin)++;
+//    (*begin)++;
+//    (*c.cbegin())++;
+//    (*c.begin())++;
+//    auto _begin = cm_r.begin();
+//    auto _cbegin = m_r.cbegin();
 }
