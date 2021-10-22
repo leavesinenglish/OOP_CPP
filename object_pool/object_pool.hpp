@@ -1,17 +1,19 @@
 #pragma once
 #include <memory>
+#include <cstdint>
 #include <vector>
 #include <stdexcept>
 #include "exceptions.hpp"
 template<class Object>
-class ObjectPool final{
+class Object_Pool final{
 public:
-    ObjectPool(ObjectPool&&) noexcept = default;
-    ObjectPool(ObjectPool const&) = delete;
-    ObjectPool& operator=(ObjectPool const&) = delete;
-    ObjectPool& operator=(ObjectPool&&) noexcept = default;
-    explicit ObjectPool(size_t pool_size) :
-        data(new uint8_t[pool_size*sizeof(Object)]), free_object_flags(pool_size, true), capacity(pool_size){
+    Object_Pool(Object_Pool&&) noexcept = default;
+    Object_Pool& operator=(Object_Pool&&) noexcept = default;
+    Object_Pool(Object_Pool const&) = delete;
+    Object_Pool& operator=(Object_Pool const&) = delete;
+
+    explicit Object_Pool(size_t pool_size) :
+        data(new size_t[pool_size*sizeof(Object)]), free_object_marks(pool_size, true), capacity(pool_size){
         for (size_t i = 0; i < pool_size; ++i)
             free_objects.push_back(get_object_ptr(i));
     }
@@ -22,7 +24,7 @@ public:
             throw Exceptions("Memory can't be allocated for a new object in the pool");
         Object* object_ptr = free_objects[free_objects.size() - 1];
         new(object_ptr) Object{ std::forward<Args>(args)... };
-        free_object_flags[object_ptr - get_object_ptr(0)] = false;
+        free_object_marks[object_ptr - get_object_ptr(0)] = false;
         free_objects.pop_back();
         return *object_ptr;
     }
@@ -33,21 +35,23 @@ public:
             throw Exceptions("You can't free objects from this pool.");
         if constexpr (std::is_class_v<Object> && !std::is_pod_v<Object>)
             object.~Object();
-        free_object_flags[object_ptr - get_object_ptr(0)] = true;
+        free_object_marks[object_ptr - get_object_ptr(0)] = true;
         free_objects.push_back(object_ptr);
     }
 
-    ~ObjectPool(){
+    ~Object_Pool(){
         if constexpr (std::is_class_v<Object> && !std::is_pod_v<Object>)
             for (size_t i = 0; i < capacity; ++i)
-                if (!free_object_flags[i])
+                if (!free_object_marks[i])
                     get_object_ptr(i)->~Object();
         delete data;
     }
 private:
-    Object* get_object_ptr(size_t position) noexcept { return reinterpret_cast<Object*>(data.get() + position * sizeof(Object)); }
-    std::unique_ptr<uint8_t[]> data;
+    Object* get_object_ptr(size_t position) noexcept{
+        return static_cast<Object*>(data.get() + position * sizeof(Object));
+    }
+    std::unique_ptr<size_t[]> data;
     std::vector<Object*> free_objects;
-    std::vector<bool> free_object_flags;
+    std::vector<bool> free_object_marks;
     size_t capacity;
 };
