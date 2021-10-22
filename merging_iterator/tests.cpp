@@ -208,20 +208,20 @@ TEST(Container, throw_) {
 }
 
 TEST (Iterators, begin_end_cbegin_cend) {
-//    vector<int> a,b,c;
-//    a = {1,2,3};
-//    b = {4,5,6};
-//    c = {7,8,9};
-//    using it_pair = pair<vector<int>::iterator, vector<int>::iterator>;
-//    vector<it_pair> iter_vec = {{a.begin(), a.end()}, {b.begin(), b.end()}, {c.begin(), c.end()}};
-//    Merge_range<vector<int>::iterator> m_r(iter_vec);
-//    const Merge_range<vector<int>::iterator> cm_r(iter_vec);
-//    auto begin = m_r.begin();
-//    auto cbegin = m_r.cbegin();
-//    (*cbegin)++;
-//    (*begin)++;
-//    (*c.cbegin())++;
-//    (*c.begin())++;
-//    auto _begin = cm_r.begin();
-//    auto _cbegin = m_r.cbegin();
+    vector<int> a,b,c;
+    a = {1,2,3};
+    b = {4,5,6};
+    c = {7,8,9};
+    using it_pair = pair<vector<int>::iterator, vector<int>::iterator>;
+    vector<it_pair> iter_vec = {{a.begin(), a.end()}, {b.begin(), b.end()}, {c.begin(), c.end()}};
+    Merge_range<vector<int>::iterator> m_r(iter_vec);
+    const Merge_range<vector<int>::iterator> cm_r(iter_vec);
+    auto begin = m_r.begin();
+    auto cbegin = m_r.cbegin();
+    (*cbegin)++;
+    (*begin)++;
+    (*c.cbegin())++;
+    (*c.begin())++;
+    auto _begin = cm_r.begin();
+    auto _cbegin = m_r.cbegin();
 }

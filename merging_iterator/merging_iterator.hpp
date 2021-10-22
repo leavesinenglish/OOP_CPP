@@ -12,7 +12,6 @@ class Merge_range<Iterator_type> final {
 
     template<typename iterator_type>
     class Merge_iterator final {
-
     public:
         using value_type = typename std::iterator_traits<Iterator_type>::value_type;
         using iterator_category = std::forward_iterator_tag;
@@ -36,17 +35,18 @@ class Merge_range<Iterator_type> final {
             position = find_pos_of_min();
             return *this;
         }
-
-        template<class = std::enable_if_t<!std::is_same_v<iterator_type, const iterator_type>>>
-        reference operator*() const{
+        template<typename T = void>
+        typename std::enable_if<!std::is_const<typename std::remove_pointer<pointer>::type>::value, reference>::type
+                operator*() const{
             if (position == stop) {
                 throw Out_of_range_exception();
             }
             return *parent.iterators[position].first;
         }
 
-        template<class = std::enable_if_t<std::is_same_v<iterator_type, const iterator_type>>>
-        const_reference operator*() const{
+        template<typename T = void>
+        typename std::enable_if<std::is_const<typename std::remove_pointer<pointer>::type>::value, const_reference>::type
+                operator*() const{
             if (position == stop) {
                 throw Out_of_range_exception();
             }
