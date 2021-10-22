@@ -1,4 +1,5 @@
 #pragma once
+
 #include <vector>
 #include <iterator>
 #include <initializer_list>
@@ -16,8 +17,8 @@ class Merge_range<Iterator_type> final {
         using value_type = typename std::iterator_traits<Iterator_type>::value_type;
         using iterator_category = std::forward_iterator_tag;
         using difference_type = typename std::iterator_traits<Iterator_type>::difference_type;
-        using reference = value_type&;
-        using const_reference = const value_type&;
+        using reference = value_type &;
+        using const_reference = const value_type &;
         using pointer = typename std::iterator_traits<Iterator_type>::pointer;
 
         explicit Merge_iterator(Merge_range new_parent) : parent(new_parent) {
@@ -28,39 +29,38 @@ class Merge_range<Iterator_type> final {
         Merge_iterator() = default;
 
         Merge_iterator &operator++() {
-            if (position == stop) {
+            if (position == stop)
                 throw Out_of_range_exception();
-            }
             ++parent.iterators[position].first;
             position = find_pos_of_min();
             return *this;
         }
+
         template<typename T = void>
         typename std::enable_if<!std::is_const<typename std::remove_pointer<pointer>::type>::value, reference>::type
-                operator*() const{
+        operator*() const {
+            if (position == stop)
+                throw Out_of_range_exception();
+            return *parent.iterators[position].first;
+        }
+
+        template<typename T = void>
+        typename std::enable_if<std::is_const<typename std::remove_pointer<pointer>::type>::value, const_reference>::type
+        operator*() const {
             if (position == stop) {
                 throw Out_of_range_exception();
             }
             return *parent.iterators[position].first;
         }
 
-        template<typename T = void>
-        typename std::enable_if<std::is_const<typename std::remove_pointer<pointer>::type>::value, const_reference>::type
-                operator*() const{
-            if (position == stop) {
+        Merge_iterator operator++(int) {
+            if (position == stop)
                 throw Out_of_range_exception();
-            }
-            return *parent.iterators[position].first;
-        }
-        Merge_iterator operator++(int)
-        {
-            if (position == stop) {
-                throw Out_of_range_exception();
-            }
             Merge_iterator temp = *this;
-            ++* this;
+            ++*this;
             return temp;
         }
+
         bool operator==(Merge_iterator const &right) {
             return this->position == right.position;
         }
@@ -99,7 +99,7 @@ public:
     Merge_range() = default;
 
     explicit Merge_range(std::vector<std::pair<Iterator_type, Iterator_type>> vector_of_iterators_pairs) :
-                        iterators(std::move(vector_of_iterators_pairs)){};
+            iterators(std::move(vector_of_iterators_pairs)) {};
 
     iterator begin() {
         return Merge_iterator<Iterator_type>(*this);
@@ -109,13 +109,14 @@ public:
         return {};
     }
 
-    const_iterator cbegin() const{
+    const_iterator cbegin() const {
         return Merge_iterator<const Iterator_type>(*this);
     }
 
-    const_iterator cend() const{
+    const_iterator cend() const {
         return {};
     }
+
 private:
     std::vector<std::pair<Iterator_type, Iterator_type>> iterators;
 };
