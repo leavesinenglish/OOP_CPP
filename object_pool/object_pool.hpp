@@ -13,9 +13,9 @@ public:
     Object_Pool& operator=(Object_Pool const&) = delete;
 
     explicit Object_Pool(size_t pool_size) :
-        data(new size_t[pool_size*sizeof(Object)]), free_object_marks(pool_size, true), capacity(pool_size){
+        data(new size_t[pool_size*sizeof(Object)]), free_object_marks(pool_size, true), capacity(pool_size){//data uniq ptr какие проблемы решает этот умный указ
         for (size_t i = 0; i < pool_size; ++i)
-            free_objects.push_back(get_object_ptr(i));
+            free_objects.push_back(get_object_ptr(i)); //! кусок памяти непрерывный а я создаю еще один хотя можно ф-ию доступа  по индексу
     }
 
     template <typename ... Args>
