@@ -13,16 +13,14 @@ public:
     Object_Pool& operator=(Object_Pool const&) = delete;
 
     explicit Object_Pool(size_t pool_size) :
-        data(new char[pool_size*sizeof(Object)]), free_object_marks(pool_size, true), capacity(pool_size){//data uniq ptr какие проблемы решает этот умный указ, not size_t but char
-    }
+        data(new char[pool_size*sizeof(Object)]), free_object_marks(pool_size, true), capacity(pool_size){}
 
     template <typename ... Args>
     Object& allocate(Args&& ...args){
         int free_obj_amount = 0;
-        for(auto mark : free_object_marks) {
+        for(auto mark : free_object_marks)
             if (mark)
                 free_obj_amount++;
-        }
         if (!free_obj_amount)
             throw Exceptions("Memory can't be allocated for a new object in the pool");
         Object* object_ptr = get_object_ptr(free_obj_amount - 1);
