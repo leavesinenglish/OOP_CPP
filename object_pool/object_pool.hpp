@@ -13,30 +13,31 @@ public:
     Object_Pool& operator=(Object_Pool const&) = delete;
 
     explicit Object_Pool(size_t pool_size) :
-        data(new size_t[pool_size*sizeof(Object)]), free_object_marks(pool_size, true), capacity(pool_size){//data uniq ptr какие проблемы решает этот умный указ
-        for (size_t i = 0; i < pool_size; ++i)
-            free_objects.push_back(get_object_ptr(i)); //! кусок памяти непрерывный а я создаю еще один хотя можно ф-ию доступа  по индексу
+        data(new char[pool_size*sizeof(Object)]), free_object_marks(pool_size, true), capacity(pool_size){//data uniq ptr какие проблемы решает этот умный указ, not size_t but char
     }
 
     template <typename ... Args>
     Object& allocate(Args&& ...args){
-        if (free_objects.empty())
+        int free_obj_amount = 0;
+        for(auto mark : free_object_marks) {
+            if (mark)
+                free_obj_amount++;
+        }
+        if (!free_obj_amount)
             throw Exceptions("Memory can't be allocated for a new object in the pool");
-        Object* object_ptr = free_objects[free_objects.size() - 1];
+        Object* object_ptr = get_object_ptr(free_obj_amount - 1);
         new(object_ptr) Object{ std::forward<Args>(args)... };
-        free_object_marks[object_ptr - get_object_ptr(0)] = false;
-        free_objects.pop_back();
+        free_object_marks[free_obj_amount - 1] = false;
         return *object_ptr;
     }
 
     void free(Object& object){
         Object* object_ptr = &object;
-        if (object_ptr < get_object_ptr(0) || object_ptr > get_object_ptr(capacity - 1))
+        if (object_ptr < data.get() || object_ptr > get_object_ptr(capacity - 1))
             throw Exceptions("You can't free objects from this pool.");
         if constexpr (std::is_class_v<Object> && !std::is_pod_v<Object>)
             object.~Object();
-        free_object_marks[object_ptr - get_object_ptr(0)] = true;
-        free_objects.push_back(object_ptr);
+        free_object_marks[object_ptr - data.get()] = true;
     }
 
     ~Object_Pool(){
@@ -51,7 +52,6 @@ private:
         return static_cast<Object*>(data.get() + position * sizeof(Object));
     }
     std::unique_ptr<size_t[]> data;
-    std::vector<Object*> free_objects;
     std::vector<bool> free_object_marks;
     size_t capacity;
 };
