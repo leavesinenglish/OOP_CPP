@@ -4,6 +4,7 @@
 #include <vector>
 #include <stdexcept>
 #include "exceptions.hpp"
+
 template<class Object>
 class Object_Pool final{
 public:
@@ -31,11 +32,11 @@ public:
 
     void free(Object& object){
         Object* object_ptr = &object;
-        if (object_ptr < data.get() || object_ptr > get_object_ptr(capacity - 1))
+        if (object_ptr < get_object_ptr(0) || object_ptr > get_object_ptr(capacity - 1))
             throw Exceptions("You can't free objects from this pool.");
         if constexpr (std::is_class_v<Object> && !std::is_pod_v<Object>)
             object.~Object();
-        free_object_marks[object_ptr - data.get()] = true;
+        free_object_marks[object_ptr - get_object_ptr(0)] = true;
     }
 
     ~Object_Pool(){
@@ -43,13 +44,12 @@ public:
             for (size_t i = 0; i < capacity; ++i)
                 if (!free_object_marks[i])
                     get_object_ptr(i)->~Object();
-        delete data;
     }
 private:
     Object* get_object_ptr(size_t position) noexcept{
-        return static_cast<Object*>(data.get() + position * sizeof(Object));
+        return reinterpret_cast<Object*>(data.get() + position * sizeof(Object));
     }
-    std::unique_ptr<size_t[]> data;
+    std::unique_ptr<char[]> data;
     std::vector<bool> free_object_marks;
     size_t capacity;
 };
