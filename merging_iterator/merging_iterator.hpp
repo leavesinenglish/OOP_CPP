@@ -8,16 +8,6 @@
 template<typename T, typename = void>
 class Merge_range;
 
-template <typename T> bool isConst(T& x)
-{
-    return false;
-}
-
-template <typename T> bool isConst(T const& x)
-{
-    return true;
-}
-
 template<typename Iterator_type>
 class Merge_range<Iterator_type> final {
 
