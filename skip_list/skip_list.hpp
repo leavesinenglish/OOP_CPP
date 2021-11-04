@@ -1,4 +1,5 @@
 #pragma once
+#include "skip_list_exceptions.hpp"
 #include <random>
 #include <algorithm>
 
@@ -24,9 +25,7 @@ private:
     struct node {
         value_ptr data;
         std::array<std::shared_ptr<node>, max_level> next_node;
-
         node() = default;
-
         explicit node(value_ptr &&data) : data(std::move(data)) {}
     };
 
@@ -58,7 +57,7 @@ private:
 
         skip_list_iterator &operator++() {
             if (!*this->node_it) {
-                //throw
+                throw Out_of_range_exception();
             }
             node_it = node_it->next_node[0];
             return *this;
@@ -66,7 +65,7 @@ private:
 
         skip_list_iterator operator++(int) {
             if (!*this->node_it) {
-                //throw
+                throw Out_of_range_exception();
             }
             auto res = *this;
             node_it = node_it->next_node[0];
@@ -75,14 +74,14 @@ private:
 
         reference operator*() const {
             if (!*this->node_it) {
-                //throw
+                throw Out_of_range_exception();
             }
             return *(node_it->data);
         }
 
         pointer operator->() const {
             if (!*this->node_it) {
-                //throw
+                throw Out_of_range_exception();
             }
             return *this->node_it->data.get();
         }
@@ -93,7 +92,7 @@ private:
                        && *this->node_it->data->second == another.node_it->data->second
                        && *this->node_it->next_node == another.node_it->next_node;
             }
-            if (*this->node_it || another->node_it){
+            if (*this->node_it || another->node_it) {
                 return true;
             }
             return false;
@@ -189,7 +188,7 @@ public:
         level = (new_level > level) ? new_level : level;
         node_ptr insert_node = constr_node(std::move(val.first), std::move(val.second));
         ++size_of_list;
-        for(auto i = 0; i <= new_level; ++i){
+        for (auto i = 0; i <= new_level; ++i) {
             insert_node->next_node[i] = update[i]->next_node[i];
             update[i]->next_node[i] = insert_node;
         }
@@ -211,16 +210,16 @@ public:
             update[level - i] = cur;
         }
         cur = cur->next_node[0];
-        if (cur && cur->data->first == key){
+        if (cur && cur->data->first == key) {
             return 1;
         }
-        for (size_t i = 0; i <= level; ++i){
-            if (update[i]->next_node[i] !=cur){
+        for (size_t i = 0; i <= level; ++i) {
+            if (update[i]->next_node[i] != cur) {
                 break;
             }
             update[i]->next_node[i] = cur->next_node[i];
         }
-        while (level > 0 && head->next_node[level]){
+        while (level > 0 && head->next_node[level]) {
             --level;
         }
         --size_of_list;
@@ -228,7 +227,7 @@ public:
     }
 
     void erase(iterator first, iterator last) {
-        for(auto i = first; i != last;){
+        for (auto i = first; i != last;) {
             auto cur = i++;
             erase(cur);
         }
@@ -253,7 +252,7 @@ public:
                 cur = cur->next_node[level - i];
             }
         }
-        if (cur->next_node[0] && cur->next_node[0]->data->first == key){
+        if (cur->next_node[0] && cur->next_node[0]->data->first == key) {
             return iterator(cur->next_node[0]);
         }
         return end();
@@ -266,7 +265,7 @@ public:
                 cur = cur->next_node[level - i];
             }
         }
-        if (cur->next_node[0] && cur->next_node[0]->data->first == key){
+        if (cur->next_node[0] && cur->next_node[0]->data->first == key) {
             return const_iterator(cur->next_node[0]);
         }
         return end();
