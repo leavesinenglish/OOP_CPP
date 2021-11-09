@@ -32,8 +32,7 @@ private:
     using node_ptr = std::shared_ptr<node>;
 
     node_ptr constr_node(Key &&key, Value &&value) {
-        auto ptr = alloc.allocate(1);
-        auto val_ptr = value_ptr(new(ptr) value_type(key, value));
+        auto val_ptr = value_ptr(new value_type(key, value));
         return std::make_shared<node>(std::move(val_ptr));
     }
 
