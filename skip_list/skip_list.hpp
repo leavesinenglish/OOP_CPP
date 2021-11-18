@@ -1,7 +1,10 @@
 #pragma once
+
 #include "skip_list_exceptions.hpp"
 #include <random>
 #include <algorithm>
+#include <functional>
+#include <array>
 
 template<typename Key,
         typename Value,
@@ -20,12 +23,14 @@ private:
     static const size_t max_level = 10;
     Compare cmp = Compare();
     Alloc alloc = Alloc();
-    using value_ptr = std::unique_ptr<value_type>;
+    using value_ptr = std::unique_ptr<value_type, std::function<void(value_type *)>>;
 
     struct node {
         value_ptr data;
         std::array<std::shared_ptr<node>, max_level> next_node;
+
         node() = default;
+
         explicit node(value_ptr &&data) : data(std::move(data)) {}
     };
 
@@ -43,7 +48,7 @@ private:
     template<bool is_const>
     class skip_list_iterator {
     public:
-        node_ptr node_it;
+        std::shared_ptr<node> node_it;
 
         skip_list_iterator() = default;
 
@@ -55,7 +60,7 @@ private:
         using iterator_category = std::forward_iterator_tag;
 
         skip_list_iterator &operator++() {
-            if (!*this->node_it) {
+            if (!node_it) {
                 throw Out_of_range_exception();
             }
             node_it = node_it->next_node[0];
@@ -63,7 +68,7 @@ private:
         }
 
         skip_list_iterator operator++(int) {
-            if (!*this->node_it) {
+            if (!node_it) {
                 throw Out_of_range_exception();
             }
             auto res = *this;
@@ -72,26 +77,26 @@ private:
         }
 
         reference operator*() const {
-            if (!*this->node_it) {
+            if (!node_it) {
                 throw Out_of_range_exception();
             }
             return *(node_it->data);
         }
 
         pointer operator->() const {
-            if (!*this->node_it) {
+            if (!node_it) {
                 throw Out_of_range_exception();
             }
-            return *this->node_it->data.get();
+            return node_it->data.get();
         }
 
         bool operator==(const skip_list_iterator &another) const {
-            if (*this->node_it && another->node_it) {
-                return *this->node_it->data->first == another.node_it->data->first
-                       && *this->node_it->data->second == another.node_it->data->second
-                       && *this->node_it->next_node == another.node_it->next_node;
+            if (node_it && another.node_it) {
+                return node_it->data->first == another.node_it->data->first
+                       && node_it->data->second == another.node_it->data->second
+                       && node_it->next_node == another.node_it->next_node;
             }
-            if (*this->node_it || another->node_it) {
+            if (node_it || another->node_it) {
                 return true;
             }
             return false;
@@ -115,6 +120,11 @@ public:
     }
 
     skip_list &operator=(const skip_list &another) {
+//        std::swap(head, another.head);
+//        std::swap(size_of_list, another.size_of_list);
+//        std::swap(level, another.level);
+//        std::swap(cmp, another.cmp);
+//        std::swap(alloc, another.alloc);
         clear();
         cmp = another.cmp;
         alloc = another.alloc;
@@ -241,7 +251,7 @@ public:
     void clear() {
         size_of_list = 0;
         level = 0;
-        head = constr_node(Key(), Compare());
+        head = constr_node(Key(), Value());
     }
 
     iterator find(const Key &key) {
@@ -272,12 +282,12 @@ public:
 };
 
 template<typename K, typename V, typename C, typename A>
-inline bool operator==(const skip_list<K, V, C, A> &x, const skip_list<K, V, C, A> &y) {
+bool operator==(const skip_list<K, V, C, A> &x, const skip_list<K, V, C, A> &y) {
     if (x.size() != y.size()) {
         return false;
     }
-    for (auto i = x.begin(), j = y.begin(); i != x.end(); i++, y++) {
-        if (i != j) {
+    for (auto i = x.cbegin(), j = y.cbegin(); i != x.сend(); i++, y++) {
+        if (*i != *j) {
             return false;
         }
     }
@@ -285,6 +295,6 @@ inline bool operator==(const skip_list<K, V, C, A> &x, const skip_list<K, V, C, 
 }
 
 template<typename K, typename V, typename C, typename A>
-inline bool operator!=(const skip_list<K, V, C, A> &x, const skip_list<K, V, C, A> &y) {
+bool operator!=(const skip_list<K, V, C, A> &x, const skip_list<K, V, C, A> &y) {
     return !(x == y);
 }
