@@ -23,12 +23,11 @@ private:
     static const size_t max_level = 10;
     Compare cmp = Compare();
     Alloc alloc = Alloc();
-    using value_ptr = std::unique_ptr<value_type, std::function<void(value_type *)>>;
+    using value_ptr = std::unique_ptr<value_type>;
 
     struct node {
         value_ptr data;
         std::array<std::shared_ptr<node>, max_level> next_node;
-
         node() = default;
 
         explicit node(value_ptr &&data) : data(std::move(data)) {}
@@ -67,7 +66,7 @@ private:
             return *this;
         }
 
-        skip_list_iterator operator++(int) {
+        skip_list_iterator &operator++(int) {
             if (!node_it) {
                 throw Out_of_range_exception();
             }
@@ -96,7 +95,7 @@ private:
                        && node_it->data->second == another.node_it->data->second
                        && node_it->next_node == another.node_it->next_node;
             }
-            if (node_it || another->node_it) {
+            if (!node_it && !another.node_it) {
                 return true;
             }
             return false;
@@ -119,18 +118,26 @@ public:
         *this = another;
     }
 
+    skip_list(skip_list &&another) noexcept {
+        *this = std::move(another);
+    }
+
     skip_list &operator=(const skip_list &another) {
-//        std::swap(head, another.head);
-//        std::swap(size_of_list, another.size_of_list);
-//        std::swap(level, another.level);
-//        std::swap(cmp, another.cmp);
-//        std::swap(alloc, another.alloc);
         clear();
         cmp = another.cmp;
         alloc = another.alloc;
         for (auto i = another.begin(); i != another.end(); ++i) {
             (*this)[i->first] = i->second;
         }
+        return *this;
+    }
+
+    skip_list &operator=(skip_list &&another)  noexcept {
+        std::swap(head, another.head);
+        std::swap(size_of_list, another.size_of_list);
+        std::swap(level, another.level);
+        std::swap(cmp, another.cmp);
+        std::swap(alloc, another.alloc);
         return *this;
     }
 
@@ -158,16 +165,19 @@ public:
         return {};
     };
 
-    bool empty() const {
+    [[nodiscard]] bool empty() const {
         return size_of_list == 0;
     }
 
-    size_t size() const {
+    [[nodiscard]] size_t size() const {
         return size_of_list;
     }
 
     Value &operator[](const Key &key) {
-        return find(key)->second;
+        if(find(key) != end()) {
+            return find(key)->second;
+        }
+        return insert(std::make_pair(key, Value())).first->second;
     }
 
     Value &at(const Key &key) {
@@ -176,6 +186,20 @@ public:
 
     const Value &at(const Key &key) const {
         return (*this)[key];
+    }
+
+    std::array<node_ptr, max_level> filling_update(const Key &key){
+        std::array<node_ptr, max_level> update;
+        std::fill(update.begin(), update.end(), head);
+        auto cur = head;
+        for (auto i = 0; i <= level; ++i) {
+            while (cur->next_node[level - i] && cmp(cur->next_node[level - i]->data->first, val.first)) {
+                cur = cur->next_node[level - i];
+            }
+            update[level - i] = cur;
+        }
+
+        return update;
     }
 
     std::pair<iterator, bool> insert(const_reference val) {
@@ -195,7 +219,7 @@ public:
         size_t new_level;
         for (new_level = 0; rand() < RAND_MAX / 2 && new_level < max_level; ++new_level) {}
         level = (new_level > level) ? new_level : level;
-        node_ptr insert_node = constr_node(std::move(val.first), std::move(val.second));
+        node_ptr insert_node = constr_node(std::move(Key(val.first)), std::move(Value(val.second)));
         ++size_of_list;
         for (auto i = 0; i <= new_level; ++i) {
             insert_node->next_node[i] = update[i]->next_node[i];
@@ -268,16 +292,7 @@ public:
     }
 
     const_iterator find(const Key &key) const {
-        auto cur = head;
-        for (auto i = 0; i <= level; ++i) {
-            while (cur->next_node[level - i] && cmp(cur->next_node[level - i]->data->first, key)) {
-                cur = cur->next_node[level - i];
-            }
-        }
-        if (cur->next_node[0] && cur->next_node[0]->data->first == key) {
-            return const_iterator(cur->next_node[0]);
-        }
-        return end();
+        static_cast<const_iterator>(find(key));
     }
 };
 
@@ -286,7 +301,7 @@ bool operator==(const skip_list<K, V, C, A> &x, const skip_list<K, V, C, A> &y) 
     if (x.size() != y.size()) {
         return false;
     }
-    for (auto i = x.cbegin(), j = y.cbegin(); i != x.сend(); i++, y++) {
+    for (auto i = x.cbegin(), j = y.cbegin(); i != x.cend(); i++, j++) {
         if (*i != *j) {
             return false;
         }
