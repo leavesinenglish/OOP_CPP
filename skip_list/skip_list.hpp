@@ -188,31 +188,10 @@ public:
         return (*this)[key];
     }
 
-    std::array<node_ptr, max_level> filling_update(const Key &key){
-        std::array<node_ptr, max_level> update;
-        std::fill(update.begin(), update.end(), head);
-        auto cur = head;
-        for (auto i = 0; i <= level; ++i) {
-            while (cur->next_node[level - i] && cmp(cur->next_node[level - i]->data->first, val.first)) {
-                cur = cur->next_node[level - i];
-            }
-            update[level - i] = cur;
-        }
-
-        return update;
-    }
-
     std::pair<iterator, bool> insert(const_reference val) {
-        std::array<node_ptr, max_level> update;
-        std::fill(update.begin(), update.end(), head);
-        auto cur = head;
-        for (auto i = 0; i <= level; ++i) {
-            while (cur->next_node[level - i] && cmp(cur->next_node[level - i]->data->first, val.first)) {
-                cur = cur->next_node[level - i];
-            }
-            update[level - i] = cur;
-        }
-        cur = cur->next_node[0];
+        auto ret_pair = find_with_update_array(val.first);
+        auto update = ret_pair.first;
+        auto cur = ret_pair.second;
         if (cur && cur->data->first == val.first) {
             return std::make_pair(iterator(cur), false);
         }
@@ -233,16 +212,9 @@ public:
     }
 
     size_t erase(const Key &key) {
-        std::array<node_ptr, max_level> update;
-        std::fill(update.begin(), update.end(), head);
-        auto cur = head;
-        for (auto i = 0; i <= level; ++i) {
-            while (cur->next_node[level - i] && cmp(cur->next_node[level - i]->data->first, key)) {
-                cur = cur->next_node[level - i];
-            }
-            update[level - i] = cur;
-        }
-        cur = cur->next_node[0];
+        auto ret_pair = find_with_update_array(key);
+        auto update = ret_pair.first;
+        auto cur = ret_pair.second;
         if (cur && cur->data->first == key) {
             return 1;
         }
@@ -279,20 +251,34 @@ public:
     }
 
     iterator find(const Key &key) {
-        auto cur = head;
-        for (auto i = 0; i <= level; ++i) {
-            while (cur->next_node[level - i] && cmp(cur->next_node[level - i]->data->first, key)) {
-                cur = cur->next_node[level - i];
-            }
-        }
-        if (cur->next_node[0] && cur->next_node[0]->data->first == key) {
-            return iterator(cur->next_node[0]);
+        auto cur = find_with_update_array(key).second;
+        if (cur&& cur->data->first == key) {
+            return iterator(cur);
         }
         return end();
     }
 
     const_iterator find(const Key &key) const {
-        static_cast<const_iterator>(find(key));
+        auto cur = find_with_update_array(key).second;
+        if (cur&& cur->data->first == key) {
+            return const_iterator(cur);
+        }
+        return cend();
+    }
+
+private:
+    std::pair<std::array<node_ptr, max_level>, node_ptr> find_with_update_array(const Key &key) const{
+        std::array<node_ptr, max_level> update;
+        std::fill(update.begin(), update.end(), head);
+        auto cur = head;
+        for (auto i = 0; i <= level; ++i) {
+            while (cur->next_node[level - i] && cmp(cur->next_node[level - i]->data->first, key)) {
+                cur = cur->next_node[level - i];
+            }
+            update[level - i] = cur;
+        }
+        cur = cur->next_node[0];
+        return std::make_pair(update, cur);
     }
 };
 
