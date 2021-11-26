@@ -2,7 +2,7 @@
 
 #include "skip_list_exceptions.hpp"
 #include <random>
-#include <array>
+#include <vector>
 
 template<typename Key,
         typename Value,
@@ -18,7 +18,7 @@ public:
     using const_reference = std::remove_reference_t<reference> const &;
 
 private:
-    Compare cmp = Compare();
+    inline static constexpr Compare cmp = Compare();
 
     struct node {
         pointer data;
@@ -43,7 +43,7 @@ private:
 
         skip_list_iterator() = default;
 
-        explicit skip_list_iterator(std::shared_ptr<node> &node) { node_it = node; }
+        explicit skip_list_iterator(std::shared_ptr<node> node) { node_it = node; }
 
         using value_type = std::conditional_t<is_const, const value_type, value_type>;
         using reference = std::add_lvalue_reference_t<value_type>;
@@ -178,7 +178,7 @@ public:
     std::pair<iterator, bool> insert(const_reference val) {
         std::mt19937 random(0);
         std::uniform_int_distribution<> uid(0, Max_level);
-        auto[update, cur] = find_with_update_array(val.first);
+        auto const &[update, cur] = find_with_update_array(val.first);
         if (cur && cur->get_key() == val.first) {
             return std::make_pair(iterator(cur), false);
         }
