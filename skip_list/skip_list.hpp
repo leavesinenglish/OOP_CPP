@@ -2,8 +2,6 @@
 
 #include "skip_list_exceptions.hpp"
 #include <random>
-#include <algorithm>
-#include <functional>
 #include <array>
 
 template<typename Key,
@@ -178,12 +176,13 @@ public:
     }
 
     std::pair<iterator, bool> insert(const_reference val) {
+        std::mt19937 random(0);
+        std::uniform_int_distribution<> uid(0, Max_level);
         auto[update, cur] = find_with_update_array(val.first);
         if (cur && cur->get_key() == val.first) {
             return std::make_pair(iterator(cur), false);
         }
-        size_t new_level;
-        for (new_level = 0; (rand() < RAND_MAX / 2) && (new_level <= Max_level); ++new_level) {}
+        size_t new_level = uid(random);
         level = (new_level > level) ? new_level : level;
         std::shared_ptr<node> insert_node= std::make_shared<node>(std::move(pointer(new value_type(std::move(Key(val.first)), std::move(Value(val.second))))));
         ++size_of_list;
