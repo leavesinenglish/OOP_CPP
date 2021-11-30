@@ -5,9 +5,8 @@
 #include <vector>
 
 template<typename Key,
-        typename Value,
-        typename Compare = std::less<Key>,
-        size_t Max_level = 10>
+        typename Value,size_t Max_level = 10,
+        typename Compare = std::less<Key>>
 
 class skip_list final {
 public:
@@ -15,16 +14,28 @@ public:
     using pointer = std::add_pointer_t<value_type>;
     using const_pointer = std::add_const_t<pointer>;
     using reference = std::add_lvalue_reference_t<value_type>;
-    using const_reference = std::remove_reference_t<reference> const &;
+    using const_reference = std::add_lvalue_reference<std::add_const<value_type>>;
 
 private:
     inline static constexpr Compare cmp = Compare();
+    class node final{
+    public:
+        bool operator == (const node &another){
+            //
+        }
+    private:
+        node() = default;
 
+        pointer data;
+        std::vector<std::shared_ptr<node>> next_node;
+
+
+    };
     struct node {
         pointer data;
         std::vector<std::shared_ptr<node>> next_node;
         node() = default;
-        explicit node(pointer &&data) : data(std::move(data)) {
+        explicit node(pointer &&data_) : data(data_) {
             next_node.resize(Max_level + 1);
         };
         const Key &get_key() const {
@@ -33,8 +44,8 @@ private:
     };
 
     std::shared_ptr<node> head = std::make_shared<node>(std::move(pointer(new value_type(Key(), Value()))));
-    size_t size_of_list = 0;
-    size_t level = 0;
+    size_t size_ = 0;
+    size_t level_ = 0;
 
     template<bool is_const>
     class skip_list_iterator {
@@ -125,8 +136,8 @@ public:
 
     skip_list &operator=(skip_list &&another) noexcept {
         std::swap(head, another.head);
-        std::swap(size_of_list, another.size_of_list);
-        std::swap(level, another.level);
+        std::swap(size_, another.size_);
+        std::swap(level_, another.level_);
         std::swap(cmp, another.cmp);
         return *this;
     }
@@ -156,16 +167,20 @@ public:
     };
 
     [[nodiscard]] bool empty() const {
-        return size_of_list == 0;
+        return size_ == 0;
     }
 
     [[nodiscard]] size_t size() const {
-        return size_of_list;
+        return size_;
     }
 
     Value &operator[](const Key &key) {
         return insert(std::make_pair(key, Value())).first->second;
     }
+
+//    const Value &operator[](const Key &key) const {
+//        return insert(std::make_pair(key, Value())).first->second;
+//    }
 
     Value &at(const Key &key) {
         return (*this)[key];
@@ -183,9 +198,9 @@ public:
             return std::make_pair(iterator(cur), false);
         }
         size_t new_level = uid(random);
-        level = (new_level > level) ? new_level : level;
-        std::shared_ptr<node> insert_node= std::make_shared<node>(std::move(pointer(new value_type(std::move(Key(val.first)), std::move(Value(val.second))))));
-        ++size_of_list;
+        level_ = (new_level > level_) ? new_level : level_;
+        std::shared_ptr<node> insert_node= std::make_shared<node>(pointer(new value_type(Key(val.first), Value(val.second))));
+        ++size_;
         for (auto i = 0; i <= new_level; ++i) {
             insert_node->next_node[i] = update[i]->next_node[i];
             update[i]->next_node[i] = insert_node;
@@ -202,16 +217,16 @@ public:
         if (cur && cur->get_key() == key) {
             return 1;
         }
-        for (size_t i = 0; i <= level; ++i) {
+        for (size_t i = 0; i <= level_; ++i) {
             if (update[i]->next_node[i] != cur) {
                 break;
             }
             update[i]->next_node[i] = cur->next_node[i];
         }
-        while (level > 0 && head->next_node[level]) {
-            --level;
+        while (level_ > 0 && head->next_node[level_]) {
+            --level_;
         }
-        --size_of_list;
+        --size_;
         return 0;
     }
 
@@ -251,9 +266,9 @@ public:
 private:
     std::shared_ptr<node> find_without_update_array(const Key &key) const {
         auto cur = head;
-        for (auto i = 0; i <= level; ++i) {
-            while (cur->next_node[level - i] && cmp(cur->next_node[level - i]->data->first, key)) {
-                cur = cur->next_node[level - i];
+        for (auto i = 0; i <= level_; ++i) {
+            while (cur->next_node[level_ - i] && cmp(cur->next_node[level_ - i]->data->first, key)) {
+                cur = cur->next_node[level_ - i];
             }
         }
         return cur->next_node[0];
@@ -264,11 +279,11 @@ private:
         update.resize(Max_level + 1);
         std::fill(update.begin(), update.end(), head);
         auto cur = head;
-        for (auto i = 0; i <= level; ++i) {
-            while (cur->next_node[level - i] && cmp(cur->next_node[level - i]->data->first, key)) {
-                cur = cur->next_node[level - i];
+        for (auto i = 0; i <= level_; ++i) {
+            while (cur->next_node[level_ - i] && cmp(cur->next_node[level_ - i]->data->first, key)) {
+                cur = cur->next_node[level_ - i];
             }
-            update[level - i] = cur;
+            update[level_ - i] = cur;
         }
         cur = cur->next_node[0];
         return std::make_pair(update, cur);
@@ -276,7 +291,7 @@ private:
 };
 
 template<typename K, typename V, typename C, size_t M = 10>
-bool operator==(const skip_list<K, V, C, M> &x, const skip_list<K, V, C, M> &y) {
+bool operator==(const skip_list<K, V, M, C> &x, const skip_list<K, V, M, C> &y) {
     if (x.size() != y.size()) {
         return false;
     }
@@ -289,6 +304,6 @@ bool operator==(const skip_list<K, V, C, M> &x, const skip_list<K, V, C, M> &y) 
 }
 
 template<typename K, typename V, typename C, size_t M = 10>
-bool operator!=(const skip_list<K, V, C, M> &x, const skip_list<K, V, C, M> &y) {
+bool operator!=(const skip_list<K, V, M, C> &x, const skip_list<K, V, M, C> &y) {
     return !(x == y);
 }
