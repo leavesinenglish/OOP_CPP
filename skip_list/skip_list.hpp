@@ -4,7 +4,7 @@
 #include <random>
 #include <vector>
 
-namespace detailed {
+namespace details {
     template<size_t Max_level = 10>
     class level final {
     private:
@@ -14,9 +14,9 @@ namespace detailed {
         static const level level_max;
         static const size_t max_alloc_size;
 
-        level() = delete;
+        //level() = delete;
 
-        explicit level(size_t lvl) {
+        explicit level(size_t lvl) : level_{lvl} {
             if (lvl < level_max.level_ && lvl > level_min.level_) {
                 level_ = lvl;
             } else {
@@ -25,12 +25,7 @@ namespace detailed {
         }
 
         level &operator++() {
-            if (level_ < Max_level) {
-                level_++;
-            } else {
-                throw Out_of_range_exception();
-            }
-            return *this;
+            return *this = level(level_ + 1);
         }
 
         level &operator-(level &another){
@@ -79,7 +74,7 @@ private:
 
     class node final {
     public:
-        using level = detailed::level<Max_level>;
+        using level = details::level<Max_level>;
 
         bool operator==(const node &another) {
             return data->first == another->data->first
@@ -182,7 +177,7 @@ private:
 public:
     using iterator = skip_list_iterator<false>;
     using const_iterator = skip_list_iterator<true>;
-    using level = detailed::level<Max_level>;
+    using level = details::level<Max_level>;
 
     skip_list() = default;
 
