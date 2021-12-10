@@ -14,10 +14,8 @@ namespace details {
         static const level level_max;
         static const size_t max_alloc_size;
 
-        //level() = delete;
-
         explicit level(size_t lvl) : level_{lvl} {
-            if (lvl < level_max.level_ && lvl > level_min.level_) {
+            if (lvl < Max_level) {
                 level_ = lvl;
             } else {
                 throw Out_of_range_exception();
@@ -28,12 +26,8 @@ namespace details {
             return *this = level(level_ + 1);
         }
 
-        level &operator-(level &another){
-            if (level_ - another.level_ < level_max.level_ && level_ - another.level_ > level_min.level_){
-                return level(level_ - another.level_);
-            } else {
-                throw Out_of_range_exception();
-            }
+        level &operator-(level &another) {
+            return level(level_ - another.level_);
         }
 
         [[nodiscard]] constexpr size_t get_level_number() const noexcept {
@@ -70,11 +64,11 @@ public:
     using const_reference = std::add_lvalue_reference<std::add_const<value_type>>;
 
 private:
+    using level = details::level<Max_level>;
     inline static constexpr Compare cmp = Compare();
 
     class node final {
     public:
-        using level = details::level<Max_level>;
 
         bool operator==(const node &another) {
             return data->first == another->data->first
@@ -107,16 +101,6 @@ private:
         [[nodiscard]] constexpr level get_level() const noexcept {
             return Level;
         }
-
-
-
-//        [[nodiscard]] constexpr size_t get_level_number() const noexcept {
-//            return Level.get_level_number();
-//        }
-//
-//        [[nodiscard]] constexpr size_t get_alloc_size() const noexcept {
-//            return Level.get_alloc_size();
-//        }
 
     private:
         pointer data = nullptr;
@@ -177,7 +161,6 @@ private:
 public:
     using iterator = skip_list_iterator<false>;
     using const_iterator = skip_list_iterator<true>;
-    using level = details::level<Max_level>;
 
     skip_list() = default;
 
