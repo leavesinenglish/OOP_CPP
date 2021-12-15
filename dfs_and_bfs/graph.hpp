@@ -9,9 +9,18 @@ public:
 
     Graph() = default;
 
+    explicit Graph(std::vector<std::pair<const vertex_type, const vertex_type>> &edges) {
+        for (const auto &[first, second]: edges) {
+            add_edge(first, second);
+        }
+    }
+
     void add_edge(const vertex_type &first, const vertex_type &second) {
+        auto a = data[first];
+        if (std::find(a.begin(), a.end(), second) != a.end()) {
+            return;
+        }
         data[first].push_back(second);
-        //check, проверить связность, конструктор с ребрами, стратегия
         data[second];
     }
 

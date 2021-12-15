@@ -9,32 +9,40 @@
 
 class Strategy {
 public:
-    using vertex_type = typename Graph::vertex_type;
-
-    Strategy() = delete;
-    explicit Strategy(Graph &graph_, std::shared_ptr<Find_path> &path_finder_) : graph(graph_), path_finder(path_finder_) {};
-    virtual void start(const vertex_type & first) = 0;
+    explicit Strategy(Graph &graph_, std::shared_ptr<Find_path> &path_finder_) : graph(graph_),
+                                                                                 path_finder(path_finder_) {};
 
     virtual ~Strategy() = default;
 
 protected:
+    friend class Founder;
+
+    using vertex_type = typename Graph::vertex_type;
+
+    virtual void run(const vertex_type &first) = 0;
+
     Graph &graph;
     std::shared_ptr<Find_path> path_finder;
+
     void begin(const vertex_type &vertex) const { this->path_finder->begin(vertex); };
-    void end() const { this->path_finder->end();};
-    void visit_vertex(const vertex_type &vertex) const {this->path_finder->visit_vertex(vertex);};
-    void visit_edge(const vertex_type &first, const vertex_type &second) const {this->path_finder->visit_edge(first, second);};
+
+    void end() const { this->path_finder->end(); };
+
+    void visit_vertex(const vertex_type &vertex) const { this->path_finder->visit_vertex(vertex); };
+
+    void visit_edge(const vertex_type &first, const vertex_type &second) const {
+        this->path_finder->visit_edge(first, second);
+    };
     std::unordered_map<vertex_type, vertex_type> prev;
 };
 
 class DFS final : Strategy {
-public:
-    DFS() = delete;
-    explicit DFS(Graph &graph_, std::shared_ptr<Find_path> &path_finder_): Strategy(graph_, path_finder_){};
-
+private:
     using vertex_type = typename Graph::vertex_type;
+public:
+    explicit DFS(Graph &graph_, std::shared_ptr<Find_path> &path_finder_) : Strategy(graph_, path_finder_) {};
 
-    void start(const vertex_type &first) override {
+    void run(const vertex_type &first) override {
         if (graph.vertices_count() == 0) {
             return;
         }
@@ -68,13 +76,12 @@ public:
 };
 
 class BFS final : Strategy {
-public:
-    BFS() = delete;
-    explicit BFS(Graph &graph_, std::shared_ptr<Find_path> &path_finder_): Strategy(graph_, path_finder_){};
-
+private:
     using vertex_type = typename Graph::vertex_type;
+public:
+    explicit BFS(Graph &graph_, std::shared_ptr<Find_path> &path_finder_) : Strategy(graph_, path_finder_) {};
 
-    void start(const vertex_type &first) override {
+    void run(const vertex_type &first) override {
         if (this->graph.vertices_count() == 0) {
             return;
         }
@@ -83,16 +90,16 @@ public:
         this->begin(first);
         q.push(first);
         this->prev[first] = first;
-        while(!q.empty()){
+        while (!q.empty()) {
             auto cur = q.front();
             q.pop();
             this->visit_vertex(cur);
             this->visit_edge(this->prev.at(cur), cur);
-            if(this->path_finder->is_completed()) {
+            if (this->path_finder->is_completed()) {
                 break;
             }
             const auto &neighbours = this->graph.neighbour_vertices(cur);
-            for(auto i = neighbours.crbegin(); i != neighbours.crend(); ++i) {
+            for (auto i = neighbours.crbegin(); i != neighbours.crend(); ++i) {
                 if (*i != this->prev[cur]) {
                     q.push(*i);
                     this->prev[*i] = cur;
@@ -101,4 +108,22 @@ public:
         }
         this->end();
     }
+};
+
+class Founder final {
+    using vertex_type = typename Graph::vertex_type;
+    const std::shared_ptr<Strategy> strategy;
+    const Graph &graph;
+public:
+    Founder(const Graph &graph, std::shared_ptr<Strategy> strategy) : graph(graph), strategy(strategy) {}
+
+    void find(const vertex_type &first) {
+        strategy->run(first);
+    }
+
+    [[nodiscard]] std::deque<vertex_type> get_path() const {
+        return strategy->path_finder->get_path();
+    }
+
+    [[nodiscard]] bool is_cyclic() const;
 };
