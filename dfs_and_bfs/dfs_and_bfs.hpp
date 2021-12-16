@@ -9,20 +9,25 @@
 
 class Strategy {
 public:
+    using vertex_type = typename Graph::vertex_type;
+
     explicit Strategy(Graph &graph_, std::shared_ptr<Find_path> &path_finder_) : graph(graph_),
                                                                                  path_finder(path_finder_) {};
 
     virtual ~Strategy() = default;
 
-protected:
-    friend class Founder;
-
-    using vertex_type = typename Graph::vertex_type;
+    std::shared_ptr<Find_path> path_finder;
 
     virtual void run(const vertex_type &first) = 0;
 
+    [[nodiscard]] bool is_cyclic() const {
+        return path_finder->is_cyclic();
+    }
+
+protected:
+    friend class Founder;
+
     Graph &graph;
-    std::shared_ptr<Find_path> path_finder;
 
     void begin(const vertex_type &vertex) const { this->path_finder->begin(vertex); };
 
@@ -32,11 +37,12 @@ protected:
 
     void visit_edge(const vertex_type &first, const vertex_type &second) const {
         this->path_finder->visit_edge(first, second);
-    };
+    };;
+
     std::unordered_map<vertex_type, vertex_type> prev;
 };
 
-class DFS final : Strategy {
+class DFS final : public Strategy {
 private:
     using vertex_type = typename Graph::vertex_type;
 public:
@@ -61,7 +67,7 @@ public:
                     break;
                 }
                 const auto &neighbours = this->graph.neighbour_vertices(vertex);
-                for (auto i = neighbours.crbegin(); i != neighbours.crend(); ++i) {
+                for (auto i = neighbours.crbegin(); i != neighbours.crend(); i++) {
                     if (*i != this->prev[vertex]) {
                         stack.push(std::make_pair(*i, false));
                         this->prev[*i] = vertex;
@@ -75,7 +81,7 @@ public:
     }
 };
 
-class BFS final : Strategy {
+class BFS final : public Strategy {
 private:
     using vertex_type = typename Graph::vertex_type;
 public:
@@ -110,14 +116,14 @@ public:
     }
 };
 
-class Founder final {
+class Traverser final {
     using vertex_type = typename Graph::vertex_type;
     const std::shared_ptr<Strategy> strategy;
     const Graph &graph;
 public:
-    Founder(const Graph &graph, std::shared_ptr<Strategy> strategy) : graph(graph), strategy(strategy) {}
+    Traverser(Graph &graph, std::shared_ptr<Strategy> &strategy) : graph(graph), strategy(strategy) {}
 
-    void find(const vertex_type &first) {
+    void begin_strategy(const vertex_type &first) {
         strategy->run(first);
     }
 
@@ -125,5 +131,7 @@ public:
         return strategy->path_finder->get_path();
     }
 
-    [[nodiscard]] bool is_cyclic() const;
+    [[nodiscard]] bool is_cyclic() {
+        return strategy->is_cyclic();
+    }
 };

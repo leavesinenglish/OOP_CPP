@@ -9,7 +9,7 @@ public:
 
     Graph() = default;
 
-    explicit Graph(std::vector<std::pair<const vertex_type, const vertex_type>> &edges) {
+    explicit Graph(const std::vector<std::pair<const vertex_type, const vertex_type>> &edges) {
         for (const auto &[first, second]: edges) {
             add_edge(first, second);
         }
@@ -28,7 +28,7 @@ public:
         return data.at(v);
     }
 
-    [[nodiscard]] const size_t vertices_count() const {
+    [[nodiscard]] size_t vertices_count() const {
         return data.size();
     }
 

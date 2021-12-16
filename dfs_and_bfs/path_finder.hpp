@@ -11,11 +11,11 @@ public:
 
     virtual ~Find_path() = default;
 
-    [[nodiscard]] const bool is_completed() const {
+    [[nodiscard]] bool is_completed() const {
         return completed;
     }
 
-    [[nodiscard]] const bool is_cyclic() const {
+    [[nodiscard]] bool is_cyclic() const {
         return cyclic;
     }
 
@@ -34,9 +34,9 @@ public:
         completed = comp(v);
     }
 
-    virtual void visit_edge(const vertex_type &first, const vertex_type &second) {
-        completed = comp(first, second);
-        prev[second] = first;
+    virtual void visit_edge(const vertex_type &first_, const vertex_type &second) {
+        completed = comp(first_, second);
+        prev[second] = first_;
     }
 
     virtual void end() {
@@ -97,21 +97,21 @@ public:
     Find_path_to_edge() = delete;
 
     explicit Find_path_to_edge(const vertex_type &first_, const vertex_type &second_)
-            : Find_path(), first(first_), second(second_) {}
+            : Find_path(), source(first_), destination(second_) {}
 
 private:
-    const vertex_type first, second;
+    const vertex_type source, destination;
 
     bool comp(const vertex_type &) override {
         return this->completed;
     }
 
     bool comp(const vertex_type &first_, const vertex_type &second_) override {
-        return first == first_ && second == second_;
+        return source == first_ && destination == second_;
     }
 
     void trace_path() override {
-        auto v = second;
+        auto v = destination;
         while (v != this->first) {
             this->path.emplace_front(v);
             v = this->prev[v];
@@ -137,9 +137,17 @@ public:
 
     void visit_edge(const vertex_type &first, const vertex_type &second) override {}
 
+private:
+    bool comp(const vertex_type &vertex) final { return false; }
+
+    bool comp(const vertex_type &first, const vertex_type &second) final { return false; }
+
+    void trace_path() final {}
+
+    void begin(const vertex_type &first) override {}
+
     void end() override {}
 
-private:
     std::set<vertex_type> visited;
     std::unordered_map<vertex_type, vertex_type> prev;
 };
