@@ -61,65 +61,6 @@ protected:
     std::deque<vertex_type> path{};
 };
 
-class Find_path_to_vertex final : public Find_path {
-public:
-    using vertex_type = typename Graph::vertex_type;
-
-    Find_path_to_vertex() = delete;
-
-    explicit Find_path_to_vertex(const vertex_type &target) : Find_path(), target_(target) {}
-
-private:
-    const vertex_type target_;
-
-    bool comp(const vertex_type &vertex) override {
-        return vertex == target_;
-    }
-
-    bool comp(const vertex_type &first, const vertex_type &second) override {
-        return this->completed;
-    }
-
-    void trace_path() override {
-        auto v = target_;
-        while (v != this->first) {
-            this->path.emplace_front(v);
-            v = this->prev[v];
-        }
-        this->path.emplace_front(v);
-    }
-};
-
-class Find_path_to_edge final : public Find_path {
-public:
-    using vertex_type = typename Graph::vertex_type;
-
-    Find_path_to_edge() = delete;
-
-    explicit Find_path_to_edge(const vertex_type &first_, const vertex_type &second_)
-            : Find_path(), source(first_), destination(second_) {}
-
-private:
-    const vertex_type source, destination;
-
-    bool comp(const vertex_type &) override {
-        return this->completed;
-    }
-
-    bool comp(const vertex_type &first_, const vertex_type &second_) override {
-        return source == first_ && destination == second_;
-    }
-
-    void trace_path() override {
-        auto v = destination;
-        while (v != this->first) {
-            this->path.emplace_front(v);
-            v = this->prev[v];
-        }
-        this->path.emplace_front(v);
-    }
-};
-
 class Check_cyclic final : public Find_path {
 public:
     using vertex_type = typename Graph::vertex_type;
@@ -128,8 +69,8 @@ public:
 
     void visit_vertex(const vertex_type &v) override {
         if (visited.find(v) != visited.end()) {
-            this->completed = true;
-            this->cyclic = true;
+            completed = true;
+            cyclic = true;
             return;
         }
         visited.emplace(v);
@@ -150,4 +91,63 @@ private:
 
     std::set<vertex_type> visited;
     std::unordered_map<vertex_type, vertex_type> prev;
+};
+
+class Find_path_to_vertex final : public Find_path {
+public:
+    using vertex_type = typename Graph::vertex_type;
+
+    Find_path_to_vertex() = delete;
+
+    explicit Find_path_to_vertex(const vertex_type &target) : Find_path(), target_(target) {}
+
+private:
+    const vertex_type target_;
+
+    bool comp(const vertex_type &vertex) override {
+        return vertex == target_;
+    }
+
+    bool comp(const vertex_type &first, const vertex_type &second) override {
+        return completed;
+    }
+
+    void trace_path() override {
+        auto v = target_;
+        while (v != first) {
+            path.emplace_front(v);
+            v = prev[v];
+        }
+        path.emplace_front(v);
+    }
+};
+
+class Find_path_to_edge final : public Find_path {
+public:
+    using vertex_type = typename Graph::vertex_type;
+
+    Find_path_to_edge() = delete;
+
+    explicit Find_path_to_edge(const vertex_type &first_, const vertex_type &second_)
+            : Find_path(), source(first_), destination(second_) {}
+
+private:
+    const vertex_type source, destination;
+
+    bool comp(const vertex_type &) override {
+        return completed;
+    }
+
+    bool comp(const vertex_type &first_, const vertex_type &second_) override {
+        return source == first_ && destination == second_;
+    }
+
+    void trace_path() override {
+        auto v = destination;
+        while (v != first) {
+            path.emplace_front(v);
+            v = prev[v];
+        }
+        path.emplace_front(v);
+    }
 };
