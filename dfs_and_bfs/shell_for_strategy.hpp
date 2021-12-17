@@ -1,4 +1,6 @@
 #pragma once
+#include <utility>
+
 #include "dfs_and_bfs.hpp"
 
 
@@ -7,7 +9,7 @@ class Traverser final {
     const std::shared_ptr<Strategy> strategy;
     const Graph &graph;
 public:
-    Traverser(Graph &graph, std::shared_ptr<Strategy> &strategy) : graph(graph), strategy(strategy) {}
+    Traverser(Graph &graph, std::shared_ptr<Strategy> strategy) : graph(graph), strategy(std::move(strategy)) {}
 
     void begin_strategy(const vertex_type &first) {
         strategy->run(first);

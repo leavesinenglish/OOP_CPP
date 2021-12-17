@@ -3,6 +3,7 @@
 #include <stack>
 #include <queue>
 #include <set>
+#include <utility>
 #include "graph.hpp"
 #include "path_finder.hpp"
 
@@ -11,8 +12,8 @@ class Strategy {
 public:
     using vertex_type = typename Graph::vertex_type;
 
-    explicit Strategy(Graph &graph_, std::shared_ptr<Find_path> &path_finder_) : graph(graph_),
-                                                                                 path_finder(path_finder_) {};
+    explicit Strategy(Graph &graph_, std::shared_ptr<Find_path> path_finder_) : graph(graph_),
+                                                                                 path_finder(std::move(path_finder_)) {};
     virtual ~Strategy() = default;
 
     std::shared_ptr<Find_path> path_finder;
@@ -45,7 +46,7 @@ class DFS final : public Strategy {
 private:
     using vertex_type = typename Graph::vertex_type;
 public:
-    explicit DFS(Graph &graph_, std::shared_ptr<Find_path> &path_finder_) : Strategy(graph_, path_finder_) {};
+    explicit DFS(Graph &graph_, std::shared_ptr<Find_path> path_finder_) : Strategy(graph_, std::move(path_finder_)) {};
 
     void run(const vertex_type &first) override {
         if (graph.vertices_count() == 0) {
@@ -84,7 +85,7 @@ class BFS final : public Strategy {
 private:
     using vertex_type = typename Graph::vertex_type;
 public:
-    explicit BFS(Graph &graph_, std::shared_ptr<Find_path> &path_finder_) : Strategy(graph_, path_finder_) {};
+    explicit BFS(Graph &graph_, std::shared_ptr<Find_path> path_finder_) : Strategy(graph_, std::move(path_finder_)) {};
 
     void run(const vertex_type &first) override {
         if (graph.vertices_count() == 0) {
