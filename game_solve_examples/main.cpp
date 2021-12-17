@@ -1,7 +1,5 @@
 #include <iostream>
 #include "game.hpp"
-#include <time.h>
-#include <signal.h>
 
 int main() {
     Game g(1, 10);

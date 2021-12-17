@@ -2,7 +2,6 @@
 
 #include <unordered_map>
 #include <memory>
-
 #include "arithmetic_operation_interface.hpp"
 
 

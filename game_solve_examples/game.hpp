@@ -3,7 +3,7 @@
 #include <string>
 #include "task.hpp"
 #include "arithmetic_operations.hpp"
-#include <time.h>
+#include <ctime>
 
 
 class Game final {
