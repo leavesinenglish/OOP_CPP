@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-#define    MAX    100
+#define MAX 100
 
 char types[10];
 int right[MAX];
