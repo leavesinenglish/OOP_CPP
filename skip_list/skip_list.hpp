@@ -3,6 +3,7 @@
 #include "skip_list_exceptions.hpp"
 #include <random>
 #include <vector>
+#include <utility>
 
 namespace details {
     template<size_t Max_level = 10>
@@ -26,18 +27,32 @@ namespace details {
             return *this = level(level_ + 1);
         }
 
+        level operator++(int) {
+            auto tmp = *this;
+            *this = level(level_ + 1);
+            return tmp;
+        }
+
         level &operator-(level &another) {
             return level(level_ - another.level_);
+        }
+
+        bool operator<=(const level &another) {
+            return (level_ <= another.level_);
+        }
+
+        bool operator==(const level &another) {
+            return (level_ == another.level_);
         }
 
         [[nodiscard]] constexpr size_t get_level_number() const noexcept {
             return level_;
         }
 
-        [[nodiscard]] size_t set_random_level() noexcept {
+        [[nodiscard]] static level get_random_level() noexcept {
             std::mt19937 random(0);
             std::uniform_int_distribution<> uid(0, Max_level);
-            return level_ = uid(random);
+            return level(uid(random));
         }
 
         [[nodiscard]] constexpr size_t get_alloc_size() const noexcept {
@@ -65,24 +80,34 @@ public:
 
 private:
     using level = details::level<Max_level>;
-    inline static constexpr Compare cmp = Compare();
+    inline static  Compare cmp = Compare();
 
     class node final {
     public:
+
+        void swap(node &another) noexcept{
+            auto tmp = std::move(*this);
+            *this = std::move(another);
+            another = std::move(tmp);
+        }
 
         bool operator==(const node &another) {
             return data->first == another->data->first
                    && data->second == another->data->second
                    && next_node == another->next_node
-                   && Level.get_level_number() == another.Level.get_level_number();
+                   && Level == another.Level;
         }
 
-        explicit node(size_t lvl) {
-            Level = level(lvl);
-            next_node(Level.get_alloc_size());
-        };
+        node &operator=(const node &another) {
+            if (this != &another) {
+                data = another.data;
+                Level = another.Level;
+                next_node = another.next_node;
+            }
+            return *this;
+        }
 
-        explicit node(const pointer &data_) : data(data_), Level() {
+        explicit node(const pointer &data_, const level &level_) : data(data_), Level(level_) {
             next_node(Level.get_alloc_size());
         };
 
@@ -108,7 +133,7 @@ private:
         level Level;
     };
 
-    node head = node(Max_level);
+    node head = node(nullptr, level(Max_level));
     size_t size_ = 0;
 
     template<bool is_const>
@@ -129,7 +154,7 @@ private:
             if (!node_it) {
                 throw Out_of_range_exception();
             }
-            node_it = node_it->next_node[0];
+            node_it = node_it->get_next_node_by_level(0);
             return *this;
         }
 
@@ -175,27 +200,35 @@ public:
     }
 
     skip_list &operator=(const skip_list &another) {
-        clear();
-        cmp = another.cmp;
-        for (auto i = another.begin(); i != another.end(); ++i) {
-            (*this)[i->first] = i->second;
+        if (this != &another) {
+            clear();
+            cmp = another.cmp;
+            for (auto i = another.begin(); i != another.end(); ++i) {
+                (*this)[i->first] = i->second;
+            }
         }
         return *this;
     }
 
+    void swap(skip_list &another){
+        auto tmp = std::move(*this);
+        *this = std::move(another);
+        another = std::move(tmp);
+    }
+
     skip_list &operator=(skip_list &&another) noexcept {
-        std::swap(head, another.head);
+        head.swap(another.head);
         std::swap(size_, another.size_);
         std::swap(cmp, another.cmp);
         return *this;
     }
 
     iterator begin() {
-        return iterator(head->next_node[0]);
+        return iterator(head.get_next_node_by_level(0));
     }
 
     const_iterator begin() const {
-        return const_iterator(head->next_node[0]);
+        return const_iterator(head.get_next_node_by_level(0));
     }
 
     iterator end() {
@@ -207,7 +240,7 @@ public:
     }
 
     const_iterator cbegin() const {
-        return const_iterator(head->next_node[0]);
+        return const_iterator(head->get_next_node_by_level(0));
     }
 
     const_iterator cend() const {
@@ -246,17 +279,17 @@ public:
         return (*this)[key];
     }
 
-    std::pair<iterator, bool> insert(const_reference val) {
+    std::pair<iterator, bool> insert(const value_type &val) {
         auto const &[update, cur] = find_with_update_array(true, val.first);
         if (cur && cur->get_key() == val.first) {
             return std::make_pair(iterator(cur), false);
         }
-        auto insert_node = new node(val);
+        auto insert_node = std::make_shared<node>(val, level::get_random_level());
         ++size_;
-        auto next_node = insert_node->get_next_node_by_level(0);
-        for (auto i = 0; i <= insert_node->get_level(); ++i) {
-            next_node[i] = update[i]->next_node[i];
-            update[i]->get_next_node_by_level(i) = insert_node;
+        auto next_node = insert_node->get_next_node_by_level(level(0));
+        for (level i = level::level_min; i <= insert_node->get_level(); ++i) {
+            next_node->get_next_node_by_level(i) = update[i.get_level_number()]->get_next_node_by_level(i);
+            update[i.get_level_number()]->get_next_node_by_level(i) = insert_node;
         }
         return std::make_pair(iterator(insert_node), true);
     }
@@ -307,12 +340,6 @@ public:
 
     }
 
-    void swap(skip_list &another) {
-        auto temp = std::move(*this);
-        *this = std::move(another);
-        another = std::move(temp);
-    }
-
     void clear() {
         *this = {};
     }
@@ -336,21 +363,21 @@ public:
 private:
     std::pair<std::vector<std::shared_ptr<node>>, std::shared_ptr<node>>
     find_with_update_array(bool with_update, const Key &key) const {
-        std::vector<std::shared_ptr<node>> update(head.get_alloc_size());
+        std::vector<std::shared_ptr<node>> update(head.get_level().get_alloc_size());
         if (with_update) {
             std::fill(update.begin(), update.end(), head);
         }
         auto cur = head;
-        for (level i = level::level_min; i <= level::level_max; ++i) {
+        for (level i = level::level_min; i <= level::level_max; i++) {
             while (cur.get_next_node_by_level(cur.get_level() - i) &&
                    cmp(cur.get_next_node_by_level(cur.get_level() - i)->get_data()->first, key)) {
-                cur = cur.get_next_node_by_level(cur.get_level() - i);
+                cur = cur.get_next_node_by_level(cur.get_level() - i).get();
             }
             if (with_update) {
                 update[(cur.get_level() - i).get_level_number()] = cur;
             }
         }
-        cur = cur.get_next_node_by_level(level::level_min);
+        cur = cur.get_next_node_by_level(level::level_min).get();
         return std::make_pair(update, cur);
     }
 };
