@@ -107,9 +107,7 @@ private:
             return *this;
         }
 
-        explicit node(const pointer &data_, const level &level_) : data(data_), Level(level_) {
-            next_node(Level.get_alloc_size());
-        };
+        explicit node(const pointer &data_, const level &level_) : data(data_), Level(level_), next_node(std::vector<std::shared_ptr<node>>(Level.get_alloc_size())) {};
 
         const Key &get_key() const {
             return data->first;
@@ -203,9 +201,8 @@ public:
         if (this != &another) {
             clear();
             cmp = another.cmp;
-            for (auto i = another.begin(); i != another.end(); ++i) {
-                (*this)[i->first] = i->second;
-            }
+            head = another.head;
+            size_ = another.size_;
         }
         return *this;
     }
