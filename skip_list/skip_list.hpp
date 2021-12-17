@@ -152,7 +152,7 @@ private:
             if (!node_it) {
                 throw Out_of_range_exception();
             }
-            node_it = node_it->get_next_node_by_level(0);
+            node_it = node_it->get_next_node_by_level(level(0));
             return *this;
         }
 
@@ -174,6 +174,10 @@ private:
                 throw Out_of_range_exception();
             }
             return node_it->get_data();
+        }
+
+        bool operator==(const skip_list_iterator &another) const {
+            return node_it == another.node_it;
         }
 
         bool operator!=(const skip_list_iterator &another) const {
@@ -221,7 +225,7 @@ public:
     }
 
     iterator begin() {
-        return iterator(head.get_next_node_by_level(0));
+        return iterator(head.get_next_node_by_level(level(0)));
     }
 
     const_iterator begin() const {
@@ -371,11 +375,11 @@ private:
                 cur = cur.get_next_node_by_level(cur.get_level() - i).get();
             }
             if (with_update) {
-                update[(cur.get_level() - i).get_level_number()] = cur;
+                update[(cur.get_level() - i).get_level_number()] = std::make_shared<node>(cur);
             }
         }
         cur = cur.get_next_node_by_level(level::level_min).get();
-        return std::make_pair(update, cur);
+        return std::make_pair(update, std::make_shared<node>(cur));
     }
 };
 
