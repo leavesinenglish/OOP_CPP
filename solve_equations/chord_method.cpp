@@ -2,7 +2,7 @@
 #include <cmath>
 
 bool chord_method::check_result(double current, double previous) {
-    func = function(current);//??
+    func = function(current);
     return abs(func) < precision;
 }
 
@@ -22,7 +22,7 @@ bool chord_method::is_valid() {
         return false;
     }
     func_left_value = function(left_boundary);
-    if (std::isnan(func_left_value) || func_left_value * function(right_boundary) >= 0) { //а не >?
+    if (std::isnan(func_left_value) || func_left_value * function(right_boundary) >= 0) {
         return false;
     }
     return true;

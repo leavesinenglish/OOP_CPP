@@ -6,6 +6,8 @@ class newton_method final : public solution {
 
     double split_ratio = 0;
 
+    bool check_result(double current, double previous) override;
+
     double middle_of_interval(double left_boundary_, double right_boundary_);
 
     bool is_valid() override;

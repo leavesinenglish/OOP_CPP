@@ -12,7 +12,7 @@ class chord_method final : public solution {
 
     bool is_valid() override;
 
-    bool check_result(double current, double previous);
+    bool check_result(double current, double previous) override;
 
 public:
     explicit chord_method(const double left_boundary_, const double right_boundary_,

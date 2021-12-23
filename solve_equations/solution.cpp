@@ -1,9 +1,9 @@
 #include "solution.hpp"
 #include <cmath>
 
-bool solution::check_result(double current, double previous) {
-    return abs(current - previous) < precision;
-}
+//bool solution::check_result(double current, double previous) {
+//    return abs(current - previous) < precision;
+//}
 
 double solution::solve() {
     if (!is_valid()) {
@@ -11,14 +11,14 @@ double solution::solve() {
     }
     double prev = get_initial_value();
     for (size_t i = 0; i < number_of_iteration; ++i) {
-        auto curr = get_next_value(prev);
-        if (abs(curr) > 1e-20 && !std::isnormal(curr)) {
+        auto cur = get_next_value(prev);
+        if (abs(cur) > 1e-20 && !std::isnormal(cur)) {
             break;
         }
-        if (check_result(curr, prev)) {
-            return curr;
+        if (check_result(cur, prev)) {
+            return cur;
         }
-        prev = curr;
+        prev = cur;
     }
     return nan("");
 }

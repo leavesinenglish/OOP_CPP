@@ -1,6 +1,10 @@
 #include "newtons_method.hpp"
 #include <cmath>
 
+bool newton_method::check_result(double current, double previous) {
+    return abs(current - previous) < precision;
+}
+
 bool newton_method::is_valid() {
     if (left_boundary >= right_boundary || precision > 1 || precision < 0 || function == nullptr || derivative == nullptr) {
         return false;

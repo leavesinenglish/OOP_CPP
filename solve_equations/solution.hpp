@@ -14,19 +14,13 @@ protected:
 
     virtual void checkingFunctionExisting() {}
 
-    virtual double get_next_value(double current) {
-        return nan("");
-    }
+    virtual double get_next_value(double current) = 0;
 
-    virtual double get_initial_value() {
-        return nan("");
-    }
+    virtual double get_initial_value() = 0;
 
-    virtual bool is_valid() {
-        return false;
-    }
+    virtual bool is_valid() = 0;
 
-    virtual bool check_result(double current, double previous);
+    virtual bool check_result(double current, double previous) = 0;
 
 public:
 
