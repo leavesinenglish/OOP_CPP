@@ -17,8 +17,8 @@ double chord_method::get_initial_value() {
 
 bool chord_method::is_valid() {
     if (left_boundary > right_boundary || precision > 1 ||
-        precision < 0 || left_boundary - right_boundary > 1e-20 ||
-        right_boundary - left_boundary < -1e-20 || function == nullptr) {
+        precision < 0 || left_boundary - right_boundary > epsilon ||
+        right_boundary - left_boundary < -epsilon || function == nullptr) {
         return false;
     }
     func_left_value = function(left_boundary);

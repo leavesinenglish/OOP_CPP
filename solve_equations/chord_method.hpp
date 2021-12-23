@@ -16,7 +16,6 @@ class chord_method final : public solution {
 
 public:
     explicit chord_method(const double left_boundary_, const double right_boundary_,
-                          const double precision_, const std::function<double(double)> &function_):
+                          const double precision_, const std::function<double(double)> &function_) :
             solution(left_boundary_, right_boundary_, precision_, function_) {}
-
 };
